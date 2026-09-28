@@ -158,22 +158,22 @@ function submit() {
   font-family: 'DM Sans', sans-serif;
   font-size: 15px;
   outline: none;
-  caret-color: var(--color-terracotta);
+  caret-color: var(--color-accent);
   transition: border-color 0.15s ease;
 }
 
 .field-input:focus {
-  border-color: var(--color-terracotta);
+  border-color: var(--color-accent);
 }
 
 .field-input--error {
-  border-color: var(--color-terracotta);
+  border-color: var(--color-accent);
 }
 
 .error-msg {
   font-family: 'DM Sans', sans-serif;
   font-size: 12px;
-  color: var(--color-terracotta);
+  color: var(--color-accent);
   margin-top: 8px;
   text-align: center;
 }
@@ -182,7 +182,7 @@ function submit() {
   width: 100%;
   margin-top: 16px;
   height: 48px;
-  background: var(--color-terracotta);
+  background: var(--color-accent);
   color: var(--color-cream);
   font-family: 'DM Sans', sans-serif;
   font-size: 13px;

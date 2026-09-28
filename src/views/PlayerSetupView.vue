@@ -197,12 +197,12 @@ function startGame() {
   font-family: 'DM Sans', sans-serif;
   font-size: 15px;
   outline: none;
-  caret-color: var(--color-terracotta);
+  caret-color: var(--color-accent);
   transition: border-color 0.15s ease;
 }
 
 .search-input:focus {
-  border-color: var(--color-terracotta);
+  border-color: var(--color-accent);
 }
 
 .search-input::placeholder {
@@ -239,7 +239,7 @@ function startGame() {
 .suggestion-item:last-child { border-bottom: none; }
 
 .suggestion-item--new {
-  color: var(--color-terracotta);
+  color: var(--color-accent);
   font-style: italic;
 }
 
@@ -268,9 +268,9 @@ function startGame() {
 }
 
 .start-btn--ready {
-  background: var(--color-terracotta);
+  background: var(--color-accent);
   color: var(--color-cream);
-  border-color: var(--color-terracotta);
+  border-color: var(--color-accent);
   cursor: pointer;
 }
 

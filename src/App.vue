@@ -54,19 +54,19 @@ function onAuthenticated() {
 
 /* CSS Tokens */
 :root {
-  --color-bg: #1A1713;
-  --color-surface: #2A2420;
-  --color-surface-raised: #332C28;
-  --color-cream: #F7F2E8;
-  --color-cream-muted: #B8B0A4;
-  --color-terracotta: #C4622D;
-  --color-gold: #C9973A;
-  --color-ink: #1C1C1A;
+  --color-bg: #12131A;
+  --color-surface: #1C1E28;
+  --color-surface-raised: #252836;
+  --color-cream: #F2EDE4;
+  --color-cream-muted: #8F8C85;
+  --color-accent: #9B8B6E;
+  --color-gold: #B89A6A;
+  --color-ink: #12131A;
   --color-cat-taste: #7A9E7E;
-  --color-cat-wyr: #C4622D;
-  --color-cat-hottake: #C9973A;
-  --color-cat-chefs: #6B8FA8;
-  --color-cat-story: #9E7E6B;
+  --color-cat-wyr: #9B8B6E;
+  --color-cat-hottake: #B89A6A;
+  --color-cat-chefs: #7B8FA8;
+  --color-cat-story: #9E8B7A;
 }
 
 html, body {

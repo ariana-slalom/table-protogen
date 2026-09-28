@@ -14,6 +14,7 @@ const exitDir = ref<'left' | 'right'>('left')
 const showScoreRow = ref(false)
 const showLeaderboard = ref(false)
 const showDebate = ref(false)
+const isDesktop = !('ontouchstart' in window)
 
 function onTouchStart(event: TouchEvent) {
   const startX = event.touches[0].clientX
@@ -38,8 +39,26 @@ function onTouchStart(event: TouchEvent) {
 const cardStyle = computed(() => {
   if (isExiting.value) return { transform: `translateX(${exitDir.value === 'left' ? '-115%' : '115%'})`, transition: 'transform 0.25s ease-in, opacity 0.25s ease-in', opacity: '0' }
   if (isDragging.value) return { transform: `translateX(${dragX.value}px) rotate(${dragX.value * 0.025}deg)`, transition: 'none' }
-  return { transform: 'translateX(0)', transition: 'transform 0.2s ease-out' }
+  return { transition: 'transform 0.2s ease-out' }
 })
+
+function handleDesktopClick(event: MouseEvent) {
+  if (!isDesktop) return
+
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+  const clickX = event.clientX - rect.left
+  const midpoint = rect.width / 2
+
+  if (clickX > midpoint && !isLast.value) {
+    exitDir.value = 'left'
+    isExiting.value = true
+    setTimeout(() => { next(); isExiting.value = false }, 250)
+  } else if (clickX <= midpoint && !isFirst.value) {
+    exitDir.value = 'right'
+    isExiting.value = true
+    setTimeout(() => { prev(); isExiting.value = false }, 250)
+  }
+}
 
 const category = computed(() => currentCard.value.categoryId ? CATEGORIES.find(item => item.id === currentCard.value.categoryId) : undefined)
 const categoryColor = computed(() => category.value?.color || 'var(--color-cream-muted)')
@@ -65,14 +84,24 @@ function handleAward(id: string) { awardPoint(id); showScoreRow.value = false }
       <button class="icon-btn" type="button" title="leaderboard" aria-label="Open leaderboard" @click="showLeaderboard = true">⬡</button>
     </div>
 
-    <div class="category-strip">
-      <button class="cat-chip" :class="{ active: activeCategoryId === 'all' }" type="button" @click="setCategory('all')">all</button>
-      <button v-for="cat in CATEGORIES" :key="cat.id" class="cat-chip" :class="{ active: activeCategoryId === cat.id }" :style="activeCategoryId === cat.id ? { background: cat.color, borderColor: cat.color, color: 'var(--color-ink)' } : {}" type="button" @click="setCategory(cat.id)">{{ cat.label }}</button>
-    </div>
+    <Transition name="fade">
+      <div v-if="currentIndex > 0" class="category-strip">
+        <button class="cat-chip" :class="{ active: activeCategoryId === 'all' }" type="button" @click="setCategory('all')">all</button>
+        <button
+          v-for="cat in CATEGORIES"
+          :key="cat.id"
+          class="cat-chip"
+          :class="{ active: activeCategoryId === cat.id }"
+          :style="activeCategoryId === cat.id ? { background: cat.color, borderColor: cat.color, color: 'var(--color-ink)', fontWeight: '600' } : {}"
+          type="button"
+          @click="setCategory(cat.id)"
+        >{{ cat.label }}</button>
+      </div>
+    </Transition>
 
-    <div class="card-wrap" @touchstart="onTouchStart">
+    <div class="card-wrap" @touchstart="onTouchStart" @click="handleDesktopClick">
       <div class="card card--ghost"></div>
-      <div class="card" :style="cardStyle">
+      <div class="card card--active" :class="{ 'card--wiggle': !isDragging && !isExiting }" :style="cardStyle">
         <span v-if="categoryLabel" class="card__category" :style="{ color: categoryColor }">{{ categoryLabel }}</span>
         <p class="card__prompt">{{ currentCard.prompt }}</p>
         <p v-if="currentCard.note" class="card__note">{{ currentCard.note }}</p>
@@ -83,6 +112,7 @@ function handleAward(id: string) { awardPoint(id); showScoreRow.value = false }
       </div>
     </div>
 
+    <p v-if="isDesktop && currentIndex === 0" class="desktop-hint">click right to advance · click left to go back</p>
     <div v-if="currentCard.id === 'card-zero'" class="swipe-hint">swipe left to begin</div>
     <button v-if="currentCard.id !== 'card-zero' && !showScoreRow" class="award-trigger" type="button" @click="triggerScoring">+ award point</button>
     <div v-if="showScoreRow" class="score-row">
@@ -113,7 +143,7 @@ function handleAward(id: string) { awardPoint(id); showScoreRow.value = false }
 </template>
 
 <style scoped>
-.game { min-height: 100vh; display: flex; flex-direction: column; align-items: center; background: var(--color-bg); padding-bottom: 24px; overflow: hidden; }
+.game { position: relative; overflow: hidden; min-height: 100vh; display: flex; flex-direction: column; align-items: center; background: var(--color-bg); padding-bottom: 24px; }
 @media (min-width: 769px) { .game { min-height: calc(852px - 70px); } }
 .top-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 16px 20px 8px; }
 .card-count { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--color-cream-muted); letter-spacing: 0.08em; }
@@ -126,6 +156,8 @@ function handleAward(id: string) { awardPoint(id); showScoreRow.value = false }
 .card { position: absolute; width: 100%; min-height: 420px; background: var(--color-surface); border-radius: 20px; padding: 32px 28px 28px; box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; gap: 16px; cursor: grab; user-select: none; will-change: transform; }
 .card--ghost { transform: scale(0.96) translateY(8px); opacity: 0.4; z-index: 0; pointer-events: none; }
 .card:not(.card--ghost) { z-index: 1; }
+@keyframes wiggle { 0%, 100% { transform: rotate(0deg) translateX(0); } 15% { transform: rotate(0.4deg) translateX(2px); } 30% { transform: rotate(-0.3deg) translateX(-1px); } 45% { transform: rotate(0.2deg) translateX(1px); } 60% { transform: rotate(0deg) translateX(0); } }
+.card--wiggle { animation: wiggle 4s ease-in-out infinite; animation-delay: 1.5s; }
 .card__category { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
 .card__prompt { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 400; color: var(--color-cream); line-height: 1.35; letter-spacing: 0.01em; flex: 1; }
 .card__note { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-cream-muted); line-height: 1.5; font-style: italic; border-top: 1px solid var(--color-surface-raised); padding-top: 12px; }
@@ -134,16 +166,18 @@ function handleAward(id: string) { awardPoint(id); showScoreRow.value = false }
 .debate-btn, .award-trigger { background: none; border: 1px solid var(--color-surface-raised); border-radius: 100px; color: var(--color-cream-muted); font-family: 'DM Sans', sans-serif; font-size: 11px; cursor: pointer; letter-spacing: 0.06em; }
 .debate-btn { padding: 6px 14px; }
 .swipe-hint { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--color-cream-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 16px; opacity: 0.5; }
+.desktop-hint { font-family: 'DM Sans', sans-serif; font-size: 10px; color: var(--color-cream-muted); opacity: 0.4; letter-spacing: 0.08em; margin-top: 8px; }
 .award-trigger { margin-top: 20px; padding: 10px 24px; font-size: 12px; letter-spacing: 0.08em; }
 .score-row { width: 100%; padding: 16px 20px 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .score-row__label, .setup__count { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--color-cream-muted); letter-spacing: 0.1em; text-transform: uppercase; }
 .score-row__players { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .score-player-btn { height: 44px; padding: 0 20px; border-radius: 100px; border: 1px solid var(--color-surface-raised); background: var(--color-surface); color: var(--color-cream); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; }
-.score-player-btn:active { background: var(--color-terracotta); border-color: var(--color-terracotta); }.score-player-btn--skip { color: var(--color-cream-muted); font-style: italic; }
-.overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 100; display: flex; align-items: flex-end; backdrop-filter: blur(4px); }
+.score-player-btn:active { background: var(--color-accent); border-color: var(--color-accent); }.score-player-btn--skip { color: var(--color-cream-muted); font-style: italic; }
+.overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 100; display: flex; align-items: flex-end; backdrop-filter: blur(4px); }
 .bottom-sheet { width: 100%; background: var(--color-surface); border-radius: 24px 24px 0 0; padding: 16px 24px 40px; display: flex; flex-direction: column; gap: 16px; max-height: 80vh; overflow-y: auto; }
 .sheet-handle { width: 40px; height: 4px; background: var(--color-surface-raised); border-radius: 2px; margin: 0 auto 8px; }.sheet-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 400; color: var(--color-cream); letter-spacing: 0.04em; }
 .sheet-close { background: var(--color-surface-raised); border: none; border-radius: 12px; height: 48px; color: var(--color-cream-muted); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; letter-spacing: 0.08em; margin-top: 8px; }
 .leaderboard, .debate-sources { display: flex; flex-direction: column; gap: 4px; }.lb-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--color-surface-raised); gap: 16px; }.lb-rank { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--color-cream-muted); width: 16px; }.lb-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--color-cream); flex: 1; }.lb-score { font-family: 'DM Sans', sans-serif; font-size: 24px; font-weight: 300; color: var(--color-gold); }
-.debate-prompt { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--color-cream-muted); font-style: italic; line-height: 1.4; }.debate-ruling { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--color-cream); line-height: 1.6; }.debate-sources { gap: 8px; }.debate-source-link { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-terracotta); text-decoration: none; padding: 10px 14px; background: var(--color-surface-raised); border-radius: 8px; letter-spacing: 0.02em; }
+.debate-prompt { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--color-cream-muted); font-style: italic; line-height: 1.4; }.debate-ruling { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--color-cream); line-height: 1.6; }.debate-sources { gap: 8px; }.debate-source-link { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-accent); text-decoration: none; padding: 10px 14px; background: var(--color-surface-raised); border-radius: 8px; letter-spacing: 0.02em; }
+.fade-enter-active { transition: opacity 0.4s ease; }.fade-enter-from { opacity: 0; }
 </style>
