@@ -27,22 +27,21 @@ function submit() {
     </div>
 
     <div class="illustration">
-      <svg width="80" height="110" viewBox="0 0 80 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Porcelain tasting spoon handle -->
-        <path d="M40 108 C39 95 38 80 37 68" stroke="#D4CFC8" stroke-width="2" stroke-linecap="round" />
-
+      <svg width="140" height="60" viewBox="0 0 140 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Spoon handle -->
+        <path d="M10 32 Q50 30 90 31" stroke="#8B7A65" stroke-width="2" stroke-linecap="round" />
         <!-- Spoon bowl -->
-        <ellipse cx="37" cy="62" rx="10" ry="6" fill="#E8E4DE" stroke="#C8C4BC" stroke-width="1" />
-
-        <!-- Tartare quenelle on spoon -->
-        <path d="M29 61 Q33 54 37 55 Q41 54 45 61 Q41 64 37 63 Q33 64 29 61Z" fill="#8B6F5E" stroke="#7A5F4E" stroke-width="0.75" />
-
-        <!-- Micro herb on top -->
-        <path d="M36 55 Q34 51 33 48" stroke="#7A9E7E" stroke-width="1.5" stroke-linecap="round" />
-        <path d="M36 55 Q37 50 39 48" stroke="#7A9E7E" stroke-width="1.5" stroke-linecap="round" />
-
+        <ellipse cx="105" cy="31" rx="16" ry="10" fill="#2A2420" stroke="#6B6055" stroke-width="1.2" />
+        <!-- Quenelle on spoon -->
+        <path d="M93 31 Q98 23 105 24 Q112 23 117 31 Q112 35 105 34 Q98 35 93 31Z" fill="#7A6B5A" stroke="#6B5E4E" stroke-width="0.8" />
+        <!-- Micro herb left -->
+        <path d="M101 24 Q99 19 97 17" stroke="#7A9E7E" stroke-width="1.5" stroke-linecap="round" />
+        <!-- Micro herb right -->
+        <path d="M103 23 Q104 18 106 16" stroke="#7A9E7E" stroke-width="1.5" stroke-linecap="round" />
         <!-- Gold dot garnish -->
-        <circle cx="40" cy="57" r="1.5" fill="#C9973A" />
+        <circle cx="108" cy="26" r="2" fill="#B89A6A" />
+        <!-- Sauce dot on spoon -->
+        <circle cx="97" cy="32" r="1.5" fill="#9B8B6E" opacity="0.7" />
       </svg>
     </div>
 
@@ -116,13 +115,9 @@ function submit() {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 110px;
+  height: 60px;
   margin: 4px 0;
   opacity: 0.9;
-}
-
-.illustration svg {
-  transform: rotate(-90deg);
 }
 
 .landing__card {
