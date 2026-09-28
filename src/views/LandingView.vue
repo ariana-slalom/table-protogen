@@ -27,16 +27,22 @@ function submit() {
     </div>
 
     <div class="illustration">
-      <svg width="86" height="92" viewBox="18 32 60 76" role="img" aria-label="An herb canapé">
-        <path d="M25 76h46l-5 18H30l-5-18Z" fill="#C9973A" />
-        <path d="M30 94h36l-3 7H33l-3-7Z" fill="#A97832" />
-        <ellipse cx="48" cy="76" rx="23" ry="9" fill="#E5D8B8" />
-        <path d="M31 74c2-14 11-22 18-22s17 8 18 22c-8 6-28 6-36 0Z" fill="#F0EDE6" />
-        <path d="M36 69c4-8 8-12 13-12s10 4 14 12" fill="none" stroke="#D1CBC0" stroke-width="1.5" stroke-linecap="round" />
-        <path d="M38 70c1-6 10-9 16-5 5 3 3 9-2 9-5 0-6-6-1-9 5-3 12 0 12 6" fill="none" stroke="#C9973A" stroke-width="1.5" stroke-linecap="round" />
-        <path d="M49 57c-1-9 3-15 10-18-1 8-4 13-10 18Z" fill="#7A9E7E" />
-        <path d="M48 58c-6-4-10-9-10-15 7 2 11 7 10 15Z" fill="#6B8FA8" />
-        <path d="M49 58 47 46" fill="none" stroke="#B8B0A4" stroke-width="1" stroke-linecap="round" />
+      <svg width="80" height="110" viewBox="0 0 80 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Porcelain tasting spoon handle -->
+        <path d="M40 108 C39 95 38 80 37 68" stroke="#D4CFC8" stroke-width="2" stroke-linecap="round" />
+
+        <!-- Spoon bowl -->
+        <ellipse cx="37" cy="62" rx="10" ry="6" fill="#E8E4DE" stroke="#C8C4BC" stroke-width="1" />
+
+        <!-- Tartare quenelle on spoon -->
+        <path d="M29 61 Q33 54 37 55 Q41 54 45 61 Q41 64 37 63 Q33 64 29 61Z" fill="#8B6F5E" stroke="#7A5F4E" stroke-width="0.75" />
+
+        <!-- Micro herb on top -->
+        <path d="M36 55 Q34 51 33 48" stroke="#7A9E7E" stroke-width="1.5" stroke-linecap="round" />
+        <path d="M36 55 Q37 50 39 48" stroke="#7A9E7E" stroke-width="1.5" stroke-linecap="round" />
+
+        <!-- Gold dot garnish -->
+        <circle cx="40" cy="57" r="1.5" fill="#C9973A" />
       </svg>
     </div>
 
@@ -110,8 +116,9 @@ function submit() {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 92px;
-  margin: 0;
+  height: 110px;
+  margin: 4px 0;
+  opacity: 0.9;
 }
 
 .landing__card {
