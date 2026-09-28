@@ -121,6 +121,10 @@ function submit() {
   opacity: 0.9;
 }
 
+.illustration svg {
+  transform: rotate(-90deg);
+}
+
 .landing__card {
   width: 100%;
   max-width: 360px;
