@@ -26,6 +26,20 @@ function submit() {
       <p class="tagline">For people with opinions about olive oil.</p>
     </div>
 
+    <div class="illustration">
+      <svg width="86" height="92" viewBox="18 32 60 76" role="img" aria-label="An herb canapé">
+        <path d="M25 76h46l-5 18H30l-5-18Z" fill="#C9973A" />
+        <path d="M30 94h36l-3 7H33l-3-7Z" fill="#A97832" />
+        <ellipse cx="48" cy="76" rx="23" ry="9" fill="#E5D8B8" />
+        <path d="M31 74c2-14 11-22 18-22s17 8 18 22c-8 6-28 6-36 0Z" fill="#F0EDE6" />
+        <path d="M36 69c4-8 8-12 13-12s10 4 14 12" fill="none" stroke="#D1CBC0" stroke-width="1.5" stroke-linecap="round" />
+        <path d="M38 70c1-6 10-9 16-5 5 3 3 9-2 9-5 0-6-6-1-9 5-3 12 0 12 6" fill="none" stroke="#C9973A" stroke-width="1.5" stroke-linecap="round" />
+        <path d="M49 57c-1-9 3-15 10-18-1 8-4 13-10 18Z" fill="#7A9E7E" />
+        <path d="M48 58c-6-4-10-9-10-15 7 2 11 7 10 15Z" fill="#6B8FA8" />
+        <path d="M49 58 47 46" fill="none" stroke="#B8B0A4" stroke-width="1" stroke-linecap="round" />
+      </svg>
+    </div>
+
     <div class="landing__card" :class="{ shake: shaking }">
       <label class="field-label">tonight's password</label>
       <input
@@ -90,6 +104,14 @@ function submit() {
   color: var(--color-cream-muted);
   letter-spacing: 0.01em;
   text-align: center;
+}
+
+.illustration {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 92px;
+  margin: 0;
 }
 
 .landing__card {

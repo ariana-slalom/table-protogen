@@ -7,11 +7,17 @@
 <style scoped>
 .game-view {
   display: grid;
-  min-height: 100%;
+  min-height: 100dvh;
   place-items: center;
   color: var(--color-cream);
   font-family: 'Cormorant Garamond', serif;
   font-size: 52px;
   letter-spacing: 0.08em;
+}
+
+@media (min-width: 769px) {
+  .game-view {
+    min-height: 100%;
+  }
 }
 </style>
