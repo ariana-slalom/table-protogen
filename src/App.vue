@@ -1,58 +1,69 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import GameView from '@/views/GameView.vue'
+import { ref, onMounted } from 'vue'
 import LandingView from '@/views/LandingView.vue'
 import PlayerSetupView from '@/views/PlayerSetupView.vue'
 import WelcomeView from '@/views/WelcomeView.vue'
+import GameView from '@/views/GameView.vue'
+import HouseRulesView from '@/views/HouseRulesView.vue'
 
+type Stage = 'landing' | 'setup' | 'welcome' | 'game' | 'rules'
+
+const stage = ref<Stage>('landing')
 const isDesktop = ref(false)
-const stage = ref<'landing' | 'setup' | 'welcome' | 'game'>('landing')
 
 onMounted(() => {
   isDesktop.value = window.innerWidth >= 769
 
-  if (sessionStorage.getItem('table-auth') !== 'true') return
+  const auth = sessionStorage.getItem('table-auth') === 'true'
+  const hasPlayers = (() => {
+    try {
+      const players = JSON.parse(sessionStorage.getItem('table-session-players') || '[]')
+      return players.length >= 2
+    } catch {
+      return false
+    }
+  })()
+  const welcomeSeen = sessionStorage.getItem('table-welcome-seen') === 'true'
 
-  try {
-    const players = JSON.parse(sessionStorage.getItem('table-session-players') || '[]')
-    const hasPlayers = Array.isArray(players) && players.length >= 2
-    stage.value = hasPlayers && sessionStorage.getItem('table-welcome-seen') === 'true'
-      ? 'game'
-      : hasPlayers
-        ? 'welcome'
-        : 'setup'
-  } catch {
+  if (!auth) {
+    stage.value = 'landing'
+  } else if (!hasPlayers) {
     stage.value = 'setup'
+  } else if (!welcomeSeen) {
+    stage.value = 'welcome'
+  } else {
+    stage.value = 'game'
   }
 })
 
-function onAuthenticated() {
+function onAuth() {
   sessionStorage.setItem('table-auth', 'true')
   stage.value = 'setup'
 }
 </script>
 
 <template>
-  <!-- DESKTOP: iPhone frame wrapper -->
-  <div v-if="isDesktop" class="desktop-shell">
-    <div class="phone-frame">
-      <div class="phone-notch"></div>
-      <div class="phone-screen">
-        <LandingView v-if="stage === 'landing'" @authenticated="onAuthenticated" />
-        <PlayerSetupView v-else-if="stage === 'setup'" @ready="stage = 'welcome'" />
-        <WelcomeView v-else-if="stage === 'welcome'" @play="stage = 'game'" />
-        <GameView v-else />
+  <template v-if="isDesktop">
+    <div class="desktop-shell">
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <LandingView v-if="stage === 'landing'" @authenticated="onAuth" />
+          <PlayerSetupView v-else-if="stage === 'setup'" @ready="stage = 'welcome'" />
+          <WelcomeView v-else-if="stage === 'welcome'" @play="stage = 'game'" @rules="stage = 'rules'" />
+          <HouseRulesView v-else-if="stage === 'rules'" @back="stage = 'welcome'" />
+          <GameView v-else @menu="stage = 'welcome'" @rules="stage = 'rules'" />
+        </div>
+        <div class="phone-chin"></div>
       </div>
-      <div class="phone-chin"></div>
     </div>
-  </div>
-
-  <!-- MOBILE: full screen, no frame -->
+  </template>
   <template v-else>
-    <LandingView v-if="stage === 'landing'" @authenticated="onAuthenticated" />
+    <LandingView v-if="stage === 'landing'" @authenticated="onAuth" />
     <PlayerSetupView v-else-if="stage === 'setup'" @ready="stage = 'welcome'" />
-    <WelcomeView v-else-if="stage === 'welcome'" @play="stage = 'game'" />
-    <GameView v-else />
+    <WelcomeView v-else-if="stage === 'welcome'" @play="stage = 'game'" @rules="stage = 'rules'" />
+    <HouseRulesView v-else-if="stage === 'rules'" @back="stage = 'welcome'" />
+    <GameView v-else @menu="stage = 'welcome'" @rules="stage = 'rules'" />
   </template>
 </template>
 
