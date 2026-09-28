@@ -1,18 +1,28 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+import GameView from '@/views/GameView.vue'
 import LandingView from '@/views/LandingView.vue'
+import PlayerSetupView from '@/views/PlayerSetupView.vue'
 
-const authenticated = ref(false)
 const isDesktop = ref(false)
+const stage = ref<'landing' | 'setup' | 'game'>('landing')
 
 onMounted(() => {
-  authenticated.value = sessionStorage.getItem('table-auth') === 'true'
   isDesktop.value = window.innerWidth >= 769
+
+  if (sessionStorage.getItem('table-auth') !== 'true') return
+
+  try {
+    const players = JSON.parse(sessionStorage.getItem('table-session-players') || '[]')
+    stage.value = Array.isArray(players) && players.length >= 2 ? 'game' : 'setup'
+  } catch {
+    stage.value = 'setup'
+  }
 })
 
-function onAuth() {
+function onAuthenticated() {
   sessionStorage.setItem('table-auth', 'true')
-  authenticated.value = true
+  stage.value = 'setup'
 }
 </script>
 
@@ -22,8 +32,9 @@ function onAuth() {
     <div class="phone-frame">
       <div class="phone-notch"></div>
       <div class="phone-screen">
-        <LandingView v-if="!authenticated" @authenticated="onAuth" />
-        <RouterView v-else />
+        <LandingView v-if="stage === 'landing'" @authenticated="onAuthenticated" />
+        <PlayerSetupView v-else-if="stage === 'setup'" @ready="stage = 'game'" />
+        <GameView v-else />
       </div>
       <div class="phone-chin"></div>
     </div>
@@ -31,8 +42,9 @@ function onAuth() {
 
   <!-- MOBILE: full screen, no frame -->
   <template v-else>
-    <LandingView v-if="!authenticated" @authenticated="onAuth" />
-    <RouterView v-else />
+    <LandingView v-if="stage === 'landing'" @authenticated="onAuthenticated" />
+    <PlayerSetupView v-else-if="stage === 'setup'" @ready="stage = 'game'" />
+    <GameView v-else />
   </template>
 </template>
 

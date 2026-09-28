@@ -26,3 +26,14 @@ export interface DeckState {
   currentIndex: number
   deck: Card[]
 }
+
+export interface Player {
+  id: string
+  name: string
+  score: number
+}
+
+export interface ScoreState {
+  players: Player[]
+  lastUpdated: string | null
+}

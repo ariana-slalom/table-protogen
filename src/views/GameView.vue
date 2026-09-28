@@ -1,23 +1,5 @@
 <template>
-  <main class="game-view" aria-label="Table game">
-    <span>Table</span>
-  </main>
+  <div style="color: var(--color-cream); padding: 40px 24px; font-family: 'Cormorant Garamond', serif; font-size: 28px; text-align: center;">
+    cards go here
+  </div>
 </template>
-
-<style scoped>
-.game-view {
-  display: grid;
-  min-height: 100dvh;
-  place-items: center;
-  color: var(--color-cream);
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 52px;
-  letter-spacing: 0.08em;
-}
-
-@media (min-width: 769px) {
-  .game-view {
-    min-height: 100%;
-  }
-}
-</style>
