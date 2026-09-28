@@ -3,9 +3,10 @@ import { onMounted, ref } from 'vue'
 import GameView from '@/views/GameView.vue'
 import LandingView from '@/views/LandingView.vue'
 import PlayerSetupView from '@/views/PlayerSetupView.vue'
+import WelcomeView from '@/views/WelcomeView.vue'
 
 const isDesktop = ref(false)
-const stage = ref<'landing' | 'setup' | 'game'>('landing')
+const stage = ref<'landing' | 'setup' | 'welcome' | 'game'>('landing')
 
 onMounted(() => {
   isDesktop.value = window.innerWidth >= 769
@@ -14,7 +15,12 @@ onMounted(() => {
 
   try {
     const players = JSON.parse(sessionStorage.getItem('table-session-players') || '[]')
-    stage.value = Array.isArray(players) && players.length >= 2 ? 'game' : 'setup'
+    const hasPlayers = Array.isArray(players) && players.length >= 2
+    stage.value = hasPlayers && sessionStorage.getItem('table-welcome-seen') === 'true'
+      ? 'game'
+      : hasPlayers
+        ? 'welcome'
+        : 'setup'
   } catch {
     stage.value = 'setup'
   }
@@ -33,7 +39,8 @@ function onAuthenticated() {
       <div class="phone-notch"></div>
       <div class="phone-screen">
         <LandingView v-if="stage === 'landing'" @authenticated="onAuthenticated" />
-        <PlayerSetupView v-else-if="stage === 'setup'" @ready="stage = 'game'" />
+        <PlayerSetupView v-else-if="stage === 'setup'" @ready="stage = 'welcome'" />
+        <WelcomeView v-else-if="stage === 'welcome'" @play="stage = 'game'" />
         <GameView v-else />
       </div>
       <div class="phone-chin"></div>
@@ -43,7 +50,8 @@ function onAuthenticated() {
   <!-- MOBILE: full screen, no frame -->
   <template v-else>
     <LandingView v-if="stage === 'landing'" @authenticated="onAuthenticated" />
-    <PlayerSetupView v-else-if="stage === 'setup'" @ready="stage = 'game'" />
+    <PlayerSetupView v-else-if="stage === 'setup'" @ready="stage = 'welcome'" />
+    <WelcomeView v-else-if="stage === 'welcome'" @play="stage = 'game'" />
     <GameView v-else />
   </template>
 </template>
