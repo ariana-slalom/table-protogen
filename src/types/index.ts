@@ -18,7 +18,7 @@ export interface Card {
   prompt: string
   hasTimer: boolean
   timerSeconds?: number
-  note?: string
+  note?: string | null
 }
 
 export interface DeckState {
