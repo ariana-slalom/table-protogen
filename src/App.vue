@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 import LandingView from '@/views/LandingView.vue'
 import PlayerSetupView from '@/views/PlayerSetupView.vue'
 import WelcomeView from '@/views/WelcomeView.vue'
@@ -41,6 +41,15 @@ function onAuth() {
   sessionStorage.setItem('table-auth', 'true')
   stage.value = 'setup'
 }
+
+function resetScrollPosition() {
+  nextTick(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' })
+    document.querySelector<HTMLElement>('.phone-screen')?.scrollTo({ top: 0, behavior: 'auto' })
+  })
+}
+
+watch(stage, resetScrollPosition, { flush: 'post' })
 </script>
 
 <template>
@@ -92,10 +101,18 @@ function onAuth() {
 }
 
 html, body {
+  width: 100%;
   height: 100%;
+  overflow-x: hidden;
   background-color: #0F0D0B;
   font-family: 'DM Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .accessibility-mode :focus-visible {
