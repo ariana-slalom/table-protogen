@@ -20,7 +20,7 @@ function setCategory(id: CategoryId | 'all') {
   activeCategoryId.value = id
   const filtered = id === 'all' ? shuffleDeck(CARDS) : shuffleDeck(filterByCategory(CARDS, id))
   deck.value = [CARD_ZERO, ...filtered, id === 'all' ? END_OF_DECK : END_OF_CATEGORY]
-  currentIndex.value = 0
+  currentIndex.value = 1
 }
 function reshuffleCategory() { setCategory(activeCategoryId.value) }
 function shuffleAll() { setCategory('all') }

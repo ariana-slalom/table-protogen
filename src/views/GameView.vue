@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useDeck } from '@/composables/useDeck'
 import { usePlayers } from '@/composables/usePlayers'
 import { CATEGORIES } from '@/data/categories'
@@ -20,6 +20,25 @@ const showScoreRow = ref(false)
 const showLeaderboard = ref(false)
 const showDebate = ref(false)
 const isDesktopDevice = !('ontouchstart' in window)
+const cardContent = ref<HTMLElement | null>(null)
+const showScrollFade = ref(false)
+
+function updateScrollFade() {
+  nextTick(() => {
+    const content = cardContent.value
+    if (!content) return
+    showScrollFade.value = content.scrollHeight - content.scrollTop > content.clientHeight + 2
+  })
+}
+
+function onCardContentScroll() {
+  const content = cardContent.value
+  if (!content) return
+  showScrollFade.value = content.scrollHeight - content.scrollTop > content.clientHeight + 2
+}
+
+onMounted(updateScrollFade)
+watch(() => currentCard.value.id, updateScrollFade)
 
 function commitSwipe(direction: 'left' | 'right', action: () => void) {
   exitDirection.value = direction
@@ -62,8 +81,8 @@ function handleDesktopClick(event: MouseEvent) {
 const cardStyle = computed(() => {
   if (isExiting.value) {
     return {
-      transform: `translateX(${exitDirection.value === 'left' ? '-125%' : '125%'}) rotate(${exitDirection.value === 'left' ? '-8deg' : '8deg'})`,
-      transition: 'transform 0.32s cubic-bezier(0.4, 0, 0.8, 0.6), opacity 0.32s ease',
+      transform: `translateX(${exitDirection.value === 'left' ? '-28px' : '28px'}) rotate(${exitDirection.value === 'left' ? '-2deg' : '2deg'})`,
+      transition: 'transform 0.28s ease-in, opacity 0.28s ease-in',
       opacity: '0'
     }
   }
@@ -92,16 +111,22 @@ function award(id: string) {
   <div class="game">
     <div class="top-bar">
       <button class="icon-btn" type="button" aria-label="Main menu" @click="emit('menu')">
-        <span class="menu-glyph">=</span>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2.5 20 7v10l-8 4.5L4 17V7l8-4.5Z" stroke="var(--color-cream-muted)" stroke-width="1.25" />
+          <path d="M8.5 10h7M8.5 14h7" stroke="var(--color-cream-muted)" stroke-width="1.25" stroke-linecap="round" />
+        </svg>
       </button>
       <button class="icon-btn" type="button" aria-label="Leaderboard" @click="showLeaderboard = true">
-        <span class="chart-glyph">▂▅█</span>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2.5 20 7v10l-8 4.5L4 17V7l8-4.5Z" stroke="var(--color-cream-muted)" stroke-width="1.25" />
+          <path d="M8 15v-3M12 15V9M16 15v-6" stroke="var(--color-cream-muted)" stroke-width="1.25" stroke-linecap="round" />
+        </svg>
       </button>
     </div>
 
     <Transition name="fade">
       <div v-if="categoriesVisible" class="category-strip">
-        <button class="cat-chip" :class="{ active: activeCategoryId === 'all' }" type="button" @click="setCategory('all')">all</button>
+        <button class="cat-chip" :class="{ active: activeCategoryId === 'all' }" type="button" @click="setCategory('all')">mix</button>
         <button v-for="categoryItem in CATEGORIES" :key="categoryItem.id" class="cat-chip" type="button" :class="{ active: activeCategoryId === categoryItem.id }" :style="activeCategoryId === categoryItem.id ? { background: categoryItem.color, borderColor: categoryItem.color, color: 'var(--color-ink)' } : {}" @click="setCategory(categoryItem.id)">{{ categoryItem.label }}</button>
       </div>
     </Transition>
@@ -132,11 +157,16 @@ function award(id: string) {
       </section>
 
       <section v-else class="card" :class="{ 'card--wiggle': !isDragging && !isExiting && currentIndex > 0 }" :style="cardStyle">
-        <span v-if="categoryLabel" class="card-category" :style="{ color: categoryColor }">{{ categoryLabel }}</span>
-        <p class="card-prompt">{{ currentCard.prompt }}</p>
-        <p v-if="currentCard.note" class="card-note">{{ currentCard.note }}</p>
+        <div class="card-header">
+          <span v-if="categoryLabel" class="card-category" :style="{ color: categoryColor }">{{ categoryLabel }}</span>
+          <span class="card-number">{{ currentCard.id === 'card-zero' ? '·' : `#${currentIndex}` }}</span>
+        </div>
+        <div ref="cardContent" class="card-scroll" @click.stop @touchstart.stop @scroll="onCardContentScroll">
+          <p class="card-prompt">{{ currentCard.prompt }}</p>
+          <p v-if="currentCard.note" class="card-note">{{ currentCard.note }}</p>
+        </div>
+        <div v-if="showScrollFade" class="card-scroll-fade"></div>
         <footer class="card-footer">
-          <span>{{ currentCard.id === 'card-zero' ? '·' : `#${currentIndex}` }}</span>
           <button v-if="currentCard.id !== 'card-zero'" class="debate-btn" type="button" @click.stop="showDebate = true">debate this</button>
         </footer>
       </section>
@@ -144,7 +174,7 @@ function award(id: string) {
 
     <p v-if="!isEndOfCategory && !isEndOfDeck" class="card-counter">{{ currentIndex }} · {{ deck.length - 2 }}</p>
     <p v-if="currentIndex === 0" class="swipe-hint">swipe left to advance · swipe right to go back</p>
-    <p v-else-if="!isEndOfCategory && !isEndOfDeck" class="swipe-hint">← · →</p>
+    <p v-else-if="!isEndOfCategory && !isEndOfDeck" class="swipe-hint">swipe ← · → to move through the deck</p>
     <button v-if="currentCard.id !== 'card-zero' && !showScoreRow && !isEndOfCategory && !isEndOfDeck" class="award-trigger" type="button" @click="showScoreRow = true">+ award point</button>
 
     <div v-if="showScoreRow" class="score-row">
@@ -187,9 +217,9 @@ function award(id: string) {
 <style scoped>
 .game { position: relative; min-height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; background: var(--color-bg); padding-bottom: 32px; }
 @media (min-width: 769px) { .game { min-height: calc(852px - 70px); } }
-.top-bar { width: 100%; display: flex; justify-content: space-between; padding: 16px; }.icon-btn { width: 44px; height: 44px; border: 0; background: none; color: var(--color-cream-muted); cursor: pointer; }.menu-glyph { font-size: 24px; }.chart-glyph { font-size: 16px; letter-spacing: 2px; }.category-strip { display: flex; gap: 8px; width: 100%; overflow-x: auto; padding: 0 16px 12px; scrollbar-width: none; }.category-spacer { height: 12px; }.cat-chip { flex: 0 0 auto; height: 32px; padding: 0 14px; border: 1px solid var(--color-surface-raised); border-radius: 100px; background: transparent; color: var(--color-cream-muted); font: 12px 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap; }.cat-chip.active { background: var(--color-cream); border-color: var(--color-cream); color: var(--color-ink); }.fade-enter-active { transition: opacity .4s ease; }.fade-enter-from { opacity: 0; }
-.card-wrap { position: relative; display: grid; flex: 1; place-items: center; width: calc(100% - 40px); max-width: 380px; min-height: 420px; cursor: pointer; touch-action: pan-y; }.card { position: absolute; display: flex; flex-direction: column; gap: 16px; width: 100%; min-height: 420px; padding: 32px 28px 28px; border-radius: 20px; background: var(--color-surface); box-shadow: 0 8px 40px rgb(0 0 0 / 50%); user-select: none; }.card--ghost { transform: scale(.96) translateY(8px); opacity: .35; pointer-events: none; }.card--end { align-items: center; justify-content: center; text-align: center; }.card-category { font: 600 11px 'DM Sans', sans-serif; letter-spacing: .14em; text-transform: uppercase; }.card-prompt { flex: 1; color: var(--color-cream); font: 26px/1.35 'Cormorant Garamond', serif; }.card-note { padding-top: 12px; border-top: 1px solid var(--color-surface-raised); color: var(--color-cream-muted); font: italic 12px/1.5 'DM Sans', sans-serif; }.card-footer { display: flex; justify-content: space-between; color: var(--color-cream-muted); font: 11px 'DM Sans', sans-serif; }.debate-btn, .award-trigger { border: 1px solid var(--color-surface-raised); border-radius: 100px; background: none; color: var(--color-cream-muted); font: 12px 'DM Sans', sans-serif; cursor: pointer; padding: 8px 16px; }
+.top-bar { width: 100%; display: flex; justify-content: space-between; padding: 16px; }.icon-btn { width: 44px; height: 44px; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }.category-strip { display: flex; gap: 8px; width: 100%; overflow-x: auto; padding: 0 16px 12px; scrollbar-width: none; }.category-spacer { height: 12px; }.cat-chip { flex: 0 0 auto; height: 32px; padding: 0 14px; border: 1px solid var(--color-surface-raised); border-radius: 100px; background: transparent; color: var(--color-cream-muted); font: 12px 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap; }.cat-chip.active { background: var(--color-cream); border-color: var(--color-cream); color: var(--color-ink); }.fade-enter-active { transition: opacity .4s ease; }.fade-enter-from { opacity: 0; }
+.card-wrap { position: relative; display: grid; flex: 1; place-items: center; width: calc(100% - 40px); max-width: 380px; min-height: 420px; cursor: pointer; touch-action: pan-y; }.card { position: absolute; z-index: 1; display: flex; flex-direction: column; gap: 16px; width: 100%; height: 420px; padding: 32px 28px 28px; overflow: hidden; border-radius: 20px; background: var(--color-surface); box-shadow: 0 8px 40px rgb(0 0 0 / 50%); user-select: none; }.card--ghost { z-index: 0; transform: scale(.96) translateY(8px); opacity: .5; pointer-events: none; }.card--end { align-items: center; justify-content: center; text-align: center; }.card-header { display: flex; align-items: center; justify-content: space-between; min-height: 16px; }.card-category { font: 600 11px 'DM Sans', sans-serif; letter-spacing: .14em; text-transform: uppercase; }.card-number { color: var(--color-cream-muted); font: 11px 'DM Sans', sans-serif; opacity: .55; }.card-scroll { position: relative; flex: 1; min-height: 0; overflow-y: auto; padding-right: 6px; overscroll-behavior: contain; scrollbar-width: none; }.card-scroll::-webkit-scrollbar { display: none; }.card-scroll-fade { position: absolute; right: 28px; bottom: 64px; left: 28px; height: 54px; pointer-events: none; background: linear-gradient(to bottom, transparent, rgb(28 30 40 / 88%)); }.card-prompt { margin: 4px 0 0; color: var(--color-cream) !important; font-family: 'Cormorant Garamond', serif !important; font-size: 34px; font-weight: 400; line-height: 1.28; letter-spacing: .01em; }.card-note { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--color-surface-raised); color: var(--color-cream-muted); font: italic 13px/1.5 'DM Sans', sans-serif; }.card-footer { display: flex; align-items: center; margin-top: auto; color: var(--color-cream-muted); font: 11px 'DM Sans', sans-serif; }.debate-btn, .award-trigger { border: 1px solid var(--color-surface-raised); border-radius: 100px; background: none; color: var(--color-cream-muted); font: 12px 'DM Sans', sans-serif; cursor: pointer; padding: 8px 16px; }
 .end-title { color: var(--color-cream); font: 26px/1.3 'Cormorant Garamond', serif; }.end-subtitle { color: var(--color-cream-muted); font: italic 18px 'Cormorant Garamond', serif; }.end-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; }.end-btn, .sheet-close { height: 48px; border: 1px solid var(--color-surface-raised); border-radius: 12px; background: var(--color-surface-raised); color: var(--color-cream-muted); font: 13px 'DM Sans', sans-serif; cursor: pointer; }.end-btn--accent { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-cream); }.end-label { margin-top: 6px; color: var(--color-cream-muted); font: 10px 'DM Sans', sans-serif; letter-spacing: .12em; text-transform: uppercase; }.end-categories { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-@keyframes wiggle { 0%, 100% { transform: rotate(0) translateX(0); } 15% { transform: rotate(.4deg) translateX(2px); } 30% { transform: rotate(-.3deg) translateX(-1px); } 45% { transform: rotate(.2deg) translateX(1px); } }.card--wiggle { animation: wiggle 4s ease-in-out infinite 1.5s; }.card-counter, .swipe-hint { margin-top: 8px; color: var(--color-cream); font: 11px 'DM Sans', sans-serif; letter-spacing: .12em; opacity: .5; }.award-trigger { margin-top: 16px; }.score-row { width: 100%; padding: 16px 20px 0; color: var(--color-cream-muted); font: 11px 'DM Sans', sans-serif; text-align: center; text-transform: uppercase; }.score-options { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 12px; }.score-player { height: 44px; padding: 0 20px; border: 1px solid var(--color-surface-raised); border-radius: 100px; background: var(--color-surface); color: var(--color-cream); cursor: pointer; }.muted { color: var(--color-cream-muted); }
+@keyframes wiggle { 0%, 100% { transform: rotate(0) translateX(0); } 15% { transform: rotate(.4deg) translateX(2px); } 30% { transform: rotate(-.3deg) translateX(-1px); } 45% { transform: rotate(.2deg) translateX(1px); } }.card--wiggle { animation: wiggle 4s ease-in-out infinite 1.5s; }.card-counter, .swipe-hint { margin-top: 8px; color: var(--color-cream-muted); font: 11px 'DM Sans', sans-serif; letter-spacing: .1em; opacity: .65; text-transform: uppercase; }.award-trigger { margin-top: 16px; }.score-row { width: 100%; padding: 16px 20px 0; color: var(--color-cream-muted); font: 11px 'DM Sans', sans-serif; text-align: center; text-transform: uppercase; }.score-options { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 12px; }.score-player { height: 44px; padding: 0 20px; border: 1px solid var(--color-surface-raised); border-radius: 100px; background: var(--color-surface); color: var(--color-cream); cursor: pointer; }.muted { color: var(--color-cream-muted); }
 .overlay { position: absolute; inset: 0; z-index: 100; display: flex; align-items: flex-end; background: rgb(0 0 0 / 65%); backdrop-filter: blur(4px); }.bottom-sheet { display: flex; flex-direction: column; gap: 14px; width: 100%; max-height: 85%; overflow-y: auto; padding: 16px 24px 40px; border-radius: 24px 24px 0 0; background: var(--color-surface); color: var(--color-cream); }.sheet-handle { width: 40px; height: 4px; margin: 0 auto; border-radius: 2px; background: var(--color-surface-raised); }.sommelier { color: var(--color-gold); font-size: 54px; line-height: .8; text-align: center; }.bottom-sheet h2 { font: 28px 'Cormorant Garamond', serif; }.leaderboard-row { display: flex; gap: 16px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--color-surface-raised); }.leaderboard-row strong { flex: 1; font: 20px 'Cormorant Garamond', serif; }.leaderboard-row b, .gold { color: var(--color-gold); }.debate-prompt { color: var(--color-cream-muted); font: italic 18px/1.4 'Cormorant Garamond', serif; }.debate-sources { display: flex; flex-direction: column; gap: 8px; }.debate-sources a { padding: 10px 14px; border-radius: 8px; background: var(--color-surface-raised); color: var(--color-accent); font: 12px 'DM Sans', sans-serif; text-decoration: none; }
 </style>
