@@ -28,20 +28,27 @@ function submit() {
 
     <div class="illustration">
       <svg width="80" height="100" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <line x1="40" y1="85" x2="36" y2="30" stroke="#6B7C5E" stroke-width="1.5" stroke-linecap="round" />
-        <line x1="40" y1="85" x2="40" y2="25" stroke="#7A9E7E" stroke-width="1.5" stroke-linecap="round" />
-        <line x1="40" y1="85" x2="44" y2="30" stroke="#6B7C5E" stroke-width="1.5" stroke-linecap="round" />
-        <line x1="40" y1="85" x2="33" y2="40" stroke="#5A6B4E" stroke-width="1.2" stroke-linecap="round" />
-        <line x1="40" y1="85" x2="47" y2="38" stroke="#5A6B4E" stroke-width="1.2" stroke-linecap="round" />
-        <ellipse cx="38" cy="52" rx="4" ry="2" fill="#7A9E7E" transform="rotate(-15 38 52)" />
-        <ellipse cx="42" cy="44" rx="4" ry="2" fill="#8DB88D" transform="rotate(15 42 44)" />
-        <ellipse cx="37" cy="38" rx="3.5" ry="1.8" fill="#7A9E7E" transform="rotate(-10 37 38)" />
-        <ellipse cx="41" cy="32" rx="3" ry="1.5" fill="#8DB88D" transform="rotate(12 41 32)" />
-        <ellipse cx="39" cy="26" rx="2.5" ry="1.2" fill="#7A9E7E" />
-        <ellipse cx="34" cy="48" rx="3" ry="1.5" fill="#6B7C5E" transform="rotate(-25 34 48)" />
-        <ellipse cx="46" cy="46" rx="3" ry="1.5" fill="#6B7C5E" transform="rotate(25 46 46)" />
-        <ellipse cx="32" cy="38" rx="2.5" ry="1.2" fill="#5A6B4E" transform="rotate(-20 32 38)" />
-        <ellipse cx="48" cy="36" rx="2.5" ry="1.2" fill="#5A6B4E" transform="rotate(20 48 36)" />
+        <!-- Rosemary: woody stem with fine needle leaves -->
+        <path d="M39 86 23 25" stroke="#53664B" stroke-width="1.5" stroke-linecap="round" />
+        <path d="m29 48-8-4m9 0-7-6m9 4-6-7m9 5-5-8m-3 20 8-2m-6-4 8-4m-6-4 7-5m-5-4 6-6" stroke="#7A9E7E" stroke-width="1.4" stroke-linecap="round" />
+        <!-- Thyme: fine center stem with small paired leaves -->
+        <path d="M40 86 40 20" stroke="#718467" stroke-width="1.25" stroke-linecap="round" />
+        <ellipse cx="37" cy="67" rx="2.6" ry="1.35" fill="#91A982" transform="rotate(-22 37 67)" />
+        <ellipse cx="43" cy="62" rx="2.6" ry="1.35" fill="#7A9E7E" transform="rotate(22 43 62)" />
+        <ellipse cx="37" cy="56" rx="2.5" ry="1.3" fill="#91A982" transform="rotate(-22 37 56)" />
+        <ellipse cx="43" cy="51" rx="2.5" ry="1.3" fill="#7A9E7E" transform="rotate(22 43 51)" />
+        <ellipse cx="37" cy="45" rx="2.3" ry="1.2" fill="#91A982" transform="rotate(-22 37 45)" />
+        <ellipse cx="43" cy="40" rx="2.3" ry="1.2" fill="#7A9E7E" transform="rotate(22 43 40)" />
+        <ellipse cx="37" cy="34" rx="2.1" ry="1.1" fill="#91A982" transform="rotate(-22 37 34)" />
+        <ellipse cx="43" cy="29" rx="2.1" ry="1.1" fill="#7A9E7E" transform="rotate(22 43 29)" />
+        <!-- Marjoram: warm broad paired leaves -->
+        <path d="M41 86 57 30" stroke="#617559" stroke-width="1.4" stroke-linecap="round" />
+        <ellipse cx="49" cy="63" rx="4" ry="2.5" fill="#8AA37B" transform="rotate(-28 49 63)" />
+        <ellipse cx="55" cy="57" rx="4" ry="2.5" fill="#78966E" transform="rotate(28 55 57)" />
+        <ellipse cx="51" cy="51" rx="3.7" ry="2.3" fill="#8AA37B" transform="rotate(-28 51 51)" />
+        <ellipse cx="57" cy="45" rx="3.7" ry="2.3" fill="#78966E" transform="rotate(28 57 45)" />
+        <ellipse cx="54" cy="39" rx="3.3" ry="2.1" fill="#8AA37B" transform="rotate(-28 54 39)" />
+        <ellipse cx="59" cy="34" rx="3.1" ry="2" fill="#78966E" transform="rotate(28 59 34)" />
         <path d="M30 82 Q40 80 50 82" stroke="#B89A6A" stroke-width="2" stroke-linecap="round" fill="none" />
         <path d="M31 86 Q40 84 49 86" stroke="#C9AD7A" stroke-width="1.5" stroke-linecap="round" fill="none" />
         <path d="M32 90 Q40 88 48 90" stroke="#B89A6A" stroke-width="1.5" stroke-linecap="round" fill="none" />

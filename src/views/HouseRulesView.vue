@@ -5,7 +5,7 @@ const rules = [
   { icon: '◈', title: 'Choose your deck', body: 'Start with The Starter Deck - 45 cards across five categories. More themed decks are coming. Each one goes deeper into a world.' },
   { icon: '◇', title: 'Swipe through prompts', body: 'One card at a time. Read it aloud. Swipe left to advance, right to go back. Pass the phone - whoever draws the card reads it.' },
   { icon: '△', title: 'Award points', body: 'Think Cards Against Humanity but for people who have opinions about the Maillard reaction. Best answer wins the point. Funniest answer also wins the point. The host decides. Democracy is optional.' },
-  { icon: '◆', title: 'Debate This', body: 'Tap "debate this" on any card to pull up sources and settle the argument. This is not cheating. This is due diligence.' },
+  { icon: '◆', title: 'Debate', body: 'Tap "debate" on any card to pull up sources and settle the argument. This is not cheating. This is due diligence.' },
   { icon: '○', title: 'Timed rounds', body: 'Some cards run on a 60-second clock. The circle counts down in the corner of the card. First correct answer, or best take when time runs out, takes the point.' },
   { icon: '✦', title: 'Sign the guest book', body: 'Before you leave, open the guest book. Leave a thought, a dinner idea, a note for the next deck. Your entry stays - shared across every table that plays.' }
 ]

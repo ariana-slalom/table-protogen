@@ -182,7 +182,7 @@ function award(id: string) {
           </svg>
         </span>
         <footer class="card-footer">
-          <button v-if="currentCard.id !== 'card-zero'" class="debate-btn" type="button" @click.stop="showDebate = true">debate this</button>
+          <button v-if="currentCard.id !== 'card-zero'" class="debate-btn" type="button" @click.stop="showDebate = true">debate</button>
         </footer>
       </section>
     </div>
