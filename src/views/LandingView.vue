@@ -27,21 +27,25 @@ function submit() {
     </div>
 
     <div class="illustration">
-      <svg width="140" height="60" viewBox="0 0 140 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Spoon handle -->
-        <path d="M10 32 Q50 30 90 31" stroke="#8B7A65" stroke-width="2" stroke-linecap="round" />
-        <!-- Spoon bowl -->
-        <ellipse cx="105" cy="31" rx="16" ry="10" fill="#2A2420" stroke="#6B6055" stroke-width="1.2" />
-        <!-- Quenelle on spoon -->
-        <path d="M93 31 Q98 23 105 24 Q112 23 117 31 Q112 35 105 34 Q98 35 93 31Z" fill="#7A6B5A" stroke="#6B5E4E" stroke-width="0.8" />
-        <!-- Micro herb left -->
-        <path d="M101 24 Q99 19 97 17" stroke="#7A9E7E" stroke-width="1.5" stroke-linecap="round" />
-        <!-- Micro herb right -->
-        <path d="M103 23 Q104 18 106 16" stroke="#7A9E7E" stroke-width="1.5" stroke-linecap="round" />
-        <!-- Gold dot garnish -->
-        <circle cx="108" cy="26" r="2" fill="#B89A6A" />
-        <!-- Sauce dot on spoon -->
-        <circle cx="97" cy="32" r="1.5" fill="#9B8B6E" opacity="0.7" />
+      <svg width="80" height="100" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="40" y1="85" x2="36" y2="30" stroke="#6B7C5E" stroke-width="1.5" stroke-linecap="round" />
+        <line x1="40" y1="85" x2="40" y2="25" stroke="#7A9E7E" stroke-width="1.5" stroke-linecap="round" />
+        <line x1="40" y1="85" x2="44" y2="30" stroke="#6B7C5E" stroke-width="1.5" stroke-linecap="round" />
+        <line x1="40" y1="85" x2="33" y2="40" stroke="#5A6B4E" stroke-width="1.2" stroke-linecap="round" />
+        <line x1="40" y1="85" x2="47" y2="38" stroke="#5A6B4E" stroke-width="1.2" stroke-linecap="round" />
+        <ellipse cx="38" cy="52" rx="4" ry="2" fill="#7A9E7E" transform="rotate(-15 38 52)" />
+        <ellipse cx="42" cy="44" rx="4" ry="2" fill="#8DB88D" transform="rotate(15 42 44)" />
+        <ellipse cx="37" cy="38" rx="3.5" ry="1.8" fill="#7A9E7E" transform="rotate(-10 37 38)" />
+        <ellipse cx="41" cy="32" rx="3" ry="1.5" fill="#8DB88D" transform="rotate(12 41 32)" />
+        <ellipse cx="39" cy="26" rx="2.5" ry="1.2" fill="#7A9E7E" />
+        <ellipse cx="34" cy="48" rx="3" ry="1.5" fill="#6B7C5E" transform="rotate(-25 34 48)" />
+        <ellipse cx="46" cy="46" rx="3" ry="1.5" fill="#6B7C5E" transform="rotate(25 46 46)" />
+        <ellipse cx="32" cy="38" rx="2.5" ry="1.2" fill="#5A6B4E" transform="rotate(-20 32 38)" />
+        <ellipse cx="48" cy="36" rx="2.5" ry="1.2" fill="#5A6B4E" transform="rotate(20 48 36)" />
+        <path d="M30 82 Q40 80 50 82" stroke="#B89A6A" stroke-width="2" stroke-linecap="round" fill="none" />
+        <path d="M31 86 Q40 84 49 86" stroke="#C9AD7A" stroke-width="1.5" stroke-linecap="round" fill="none" />
+        <path d="M32 90 Q40 88 48 90" stroke="#B89A6A" stroke-width="1.5" stroke-linecap="round" fill="none" />
+        <circle cx="40" cy="84" r="2" fill="#C9AD7A" />
       </svg>
     </div>
 
@@ -115,9 +119,9 @@ function submit() {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 60px;
-  margin: 4px 0;
-  opacity: 0.9;
+  height: 100px;
+  margin: 8px 0;
+  opacity: 0.85;
 }
 
 .landing__card {
