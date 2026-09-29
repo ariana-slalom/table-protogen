@@ -159,5 +159,73 @@ export const CARDS: Card[] = [
   { id: 'story-06', categoryId: 'story', prompt: 'The ingredient you were wrong about for years. What changed your mind?', hasTimer: false },
   { id: 'story-07', categoryId: 'story', prompt: 'A food tradition from someone else\'s culture that you\'ve genuinely absorbed into your own cooking. How did it happen?', hasTimer: false },
   { id: 'story-08', categoryId: 'story', prompt: 'The worst food advice you\'ve ever been given by someone who was extremely confident about it.', hasTimer: false },
-  { id: 'story-09', categoryId: 'story', prompt: 'Your death row meal. Not what sounds impressive — what you actually want.', hasTimer: false }
+  { id: 'story-09', categoryId: 'story', prompt: 'Your death row meal. Not what sounds impressive — what you actually want.', hasTimer: false },
+
+  // ── TASTE (additional) ────────────────────────────────────────────
+  {
+    id: 'taste-10',
+    categoryId: 'taste',
+    prompt: 'What\'s the difference between how a Hass avocado tastes versus a Fuerte — and does the variety actually matter to you?',
+    hasTimer: false,
+    note: 'Hass: nutty, rich, higher fat content. Fuerte: milder, creamier, less intense. Hass dominates commercial markets for fat content; Fuerte has devoted followers. Most people have only ever eaten Hass.'
+  },
+  {
+    id: 'taste-11',
+    categoryId: 'taste',
+    prompt: 'Smell this glass of wine before tasting. Name three things you smell — not flavors, not fruits. Smells.',
+    hasTimer: false,
+    note: 'Forces sensory vocabulary beyond "oaky" or "fruity." Good answers: wet stone, forest floor, pencil shavings, lanolin, dried roses, tobacco, leather.'
+  },
+
+  // ── WOULD YOU RATHER (additional) ────────────────────────────────
+  { id: 'wyr-10', categoryId: 'would-you-rather', prompt: 'Eat only fermented foods for the rest of your life — kimchi, miso, cheese, wine, sourdough — or eat nothing fermented ever again?', hasTimer: false },
+  { id: 'wyr-11', categoryId: 'would-you-rather', prompt: 'Know the exact calorie count of everything you eat for the rest of your life — or never be able to look up a recipe again?', hasTimer: false },
+
+  // ── HOT TAKE (additional) ─────────────────────────────────────────
+  { id: 'hottake-10', categoryId: 'hot-take', prompt: 'Cooking for others is an act of love. Cooking for yourself is an act of discipline. These are fundamentally different activities.', hasTimer: false, note: 'One player states their take. Table votes agree or disagree.' },
+  { id: 'hottake-11', categoryId: 'hot-take', prompt: 'The rise of the celebrity chef has been net negative for actual cooking culture. Agree or disagree?', hasTimer: false, note: 'One player states their take. Table votes agree or disagree.' },
+  { id: 'hottake-12', categoryId: 'hot-take', prompt: 'A meal eaten alone, no matter how good, is always slightly diminished. Food is fundamentally social.', hasTimer: false, note: 'One player states their take. Table votes agree or disagree.' },
+
+  // ── CHEF'S TABLE (additional) ────────────────────────────────────
+  {
+    id: 'chefs-10',
+    categoryId: 'chefs-table',
+    prompt: 'What is the difference between chiffonade, brunoise, and julienne — and which cut is hardest to do correctly at speed?',
+    hasTimer: false,
+    note: 'Chiffonade: thin ribbons (leafy herbs). Brunoise: tiny uniform cubes (2mm). Julienne: thin matchsticks. Brunoise is hardest — requires perfect julienne first, then precise cross-cut. Speed exposes every flaw in knife technique.'
+  },
+  {
+    id: 'chefs-11',
+    categoryId: 'chefs-table',
+    prompt: 'Joël Robuchon\'s pomme purée is famously equal parts potato and butter by weight. Is this a recipe or a provocation?',
+    hasTimer: false,
+    note: 'The ratio is real: roughly 1kg potato to 250g butter, sometimes more. It is both a recipe and a statement. The table decides whether this is genius or excess.'
+  },
+  {
+    id: 'chefs-12',
+    categoryId: 'chefs-table',
+    prompt: 'Name the six wines of Bordeaux\'s 1855 Classification First Growths — and which was added in 1973?',
+    hasTimer: true,
+    timerSeconds: 60,
+    note: 'Original five: Château Lafite Rothschild, Latour, Margaux, Haut-Brion, Mouton Rothschild. Mouton was added in 1973 — the only change in 168 years.'
+  },
+  {
+    id: 'chefs-13',
+    categoryId: 'chefs-table',
+    prompt: 'What is spherification and which chef made it a defining technique of molecular gastronomy?',
+    hasTimer: false,
+    note: 'Spherification: sodium alginate + calcium chloride creates a gel membrane around liquid, forming caviar-like spheres that burst when eaten. Ferran Adrià at El Bulli developed and popularized it in the early 2000s.'
+  },
+  {
+    id: 'chefs-14',
+    categoryId: 'chefs-table',
+    prompt: 'What does "terroir" mean in wine — and name three factors that contribute to it beyond just soil type?',
+    hasTimer: false,
+    note: 'Terroir: the complete natural environment in which wine is produced. Beyond soil: altitude (temperature variation, UV), aspect (sun exposure direction), microclimate (humidity, frost risk, fog), and subsoil drainage. Human decisions (viticulture practices) are debated as part of terroir.'
+  },
+
+  // ── STORY (additional) ────────────────────────────────────────────
+  { id: 'story-10', categoryId: 'story', prompt: 'A meal you cooked that completely surprised you — you had no idea it would be that good.', hasTimer: false },
+  { id: 'story-11', categoryId: 'story', prompt: 'The person who taught you the most about food. What\'s one specific thing they showed you?', hasTimer: false },
+  { id: 'story-12', categoryId: 'story', prompt: 'If you had to cook one dish to introduce someone to your food culture — whatever that means to you — what would it be?', hasTimer: false }
 ]
