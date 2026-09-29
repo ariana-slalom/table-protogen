@@ -98,6 +98,32 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+.accessibility-mode :focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.accessibility-mode .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.accessibility-mode.reduced-motion *,
+.accessibility-mode.reduced-motion *::before,
+.accessibility-mode.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+  transition-duration: 0.01ms !important;
+}
+
 /* Mobile: full screen */
 @media (max-width: 768px) {
   html, body {

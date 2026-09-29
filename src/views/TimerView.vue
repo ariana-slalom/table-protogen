@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref } from 'vue'
+import { useAccessibility } from '@/composables/useAccessibility'
 
 const props = defineProps<{ seconds: number }>()
 const emit = defineEmits<{ close: [] }>()
+const { isAccessibilityMode } = useAccessibility()
 
 const total = props.seconds || 60
 const remaining = ref(total)
@@ -109,6 +111,7 @@ onUnmounted(stopInterval)
 
 <template>
   <div class="timer-screen">
+    <p v-if="isAccessibilityMode" class="sr-only" aria-live="polite">{{ isDone ? "Time's up" : `${displayTime} remaining` }}</p>
     <div class="timer-topbar">
       <button class="back-btn" type="button" @click="emit('close')">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M12 4 L6 10 L12 16" stroke="var(--color-cream-muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
