@@ -3,11 +3,10 @@ import type { Card, CategoryId } from '@/types'
 import { CARDS } from '@/data/cards'
 import { buildDeck, filterByCategory, shuffleDeck } from '@/utils/deck'
 
-const CARD_ZERO: Card = { id: 'card-zero', categoryId: null, prompt: 'Pull it out. Pass it around. Read the card aloud. Play as a group.', hasTimer: false, note: null }
 const END_OF_CATEGORY: Card = { id: 'end-category', categoryId: null, prompt: '', hasTimer: false, note: null }
 const END_OF_DECK: Card = { id: 'end-deck', categoryId: null, prompt: '', hasTimer: false, note: null }
 const activeCategoryId = ref<CategoryId | 'all'>('all')
-const deck = ref<Card[]>([CARD_ZERO, ...buildDeck(CARDS, 'all'), END_OF_DECK])
+const deck = ref<Card[]>([...buildDeck(CARDS, 'all'), END_OF_DECK])
 const currentIndex = ref(0)
 const currentCard = computed(() => deck.value[currentIndex.value])
 const isFirst = computed(() => currentIndex.value === 0)
@@ -19,8 +18,8 @@ function prev() { if (!isFirst.value) currentIndex.value-- }
 function setCategory(id: CategoryId | 'all') {
   activeCategoryId.value = id
   const filtered = id === 'all' ? shuffleDeck(CARDS) : shuffleDeck(filterByCategory(CARDS, id))
-  deck.value = [CARD_ZERO, ...filtered, id === 'all' ? END_OF_DECK : END_OF_CATEGORY]
-  currentIndex.value = 1
+  deck.value = [...filtered, id === 'all' ? END_OF_DECK : END_OF_CATEGORY]
+  currentIndex.value = 0
 }
 function reshuffleCategory() { setCategory(activeCategoryId.value) }
 function shuffleAll() { setCategory('all') }
