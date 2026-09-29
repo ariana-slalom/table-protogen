@@ -30,11 +30,6 @@ function handlePlay() {
   emit('play')
 }
 
-function restartGame() {
-  sessionStorage.clear()
-  window.location.reload()
-}
-
 const playerNames = computed(() => {
   const names = sessionPlayers.value.map(player => player.name)
   if (names.length < 2) return names.join('')
@@ -50,7 +45,12 @@ const tonight = new Date().toLocaleDateString('en-US', {
 <template>
   <div class="welcome">
     <div class="welcome-topbar">
-      <button class="hex-btn" type="button" aria-label="menu" @click="showMenu = true"><HexIcon /></button>
+      <button v-if="guestListMode" class="guest-list-back" type="button" aria-label="Back" @click="guestListMode = false; partyInput = ''">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M12 4 L6 10 L12 16" stroke="var(--color-cream-muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+      <button v-else class="hex-btn" type="button" aria-label="menu" @click="showMenu = true"><HexIcon /></button>
     </div>
     <div class="welcome__header">
       <p class="welcome__date">{{ tonight }}</p>
@@ -108,7 +108,6 @@ const tonight = new Date().toLocaleDateString('en-US', {
         <button class="menu-item" type="button" @click="emit('play'); showMenu = false">◇ let's play</button>
         <button class="menu-item" type="button" @click="emit('rules'); showMenu = false">△ house rules</button>
         <button class="menu-item" type="button" @click="emit('guestbook'); showMenu = false">✦ guest book</button>
-        <button class="menu-item menu-item--danger" type="button" @click="restartGame">○ restart game</button>
         <button class="sheet-close" type="button" @click="showMenu = false">close</button>
       </div>
     </div>
@@ -118,7 +117,7 @@ const tonight = new Date().toLocaleDateString('en-US', {
 <style scoped>
 .welcome { position: relative; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 0 24px 40px; background: var(--color-bg); gap: 28px; overflow: hidden; }
 @media (min-width: 769px) { .welcome { min-height: calc(852px - 70px); } }
-.welcome-topbar { width: 100%; display: flex; justify-content: flex-start; padding: 0 8px; }.hex-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; }
+.welcome-topbar { width: 100%; display: flex; justify-content: flex-start; padding: 0 8px; }.hex-btn,.guest-list-back { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; }
 .welcome__header { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }.welcome__date, .party-msg__label, .party-input__label, .decks-coming__label { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--color-cream-muted); letter-spacing: 0.12em; text-transform: uppercase; }.welcome__date, .decks-coming__label { font-size: 10px; }.wordmark { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 400; color: var(--color-cream); letter-spacing: 0.06em; line-height: 1; }.welcome__greeting { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; color: var(--color-cream-muted); }.welcome__players { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--color-gold); letter-spacing: 0.04em; }
 .party-input-wrap { width: 100%; max-width: 360px; background: var(--color-surface); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }.party-input__label { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--color-cream-muted); letter-spacing: 0.1em; text-transform: uppercase; }.party-input__field { background: var(--color-bg); border: 1px solid var(--color-surface-raised); border-radius: 8px; padding: 12px 14px; color: var(--color-cream); font-family: 'Cormorant Garamond', serif; font-size: 17px; resize: none; outline: none; caret-color: var(--color-accent); line-height: 1.5; }.party-input__field:focus { border-color: var(--color-accent); }.party-input__actions { display: flex; gap: 8px; justify-content: flex-end; }.party-input__cancel { align-self: auto; padding: 8px 12px; background: none; border: none; color: var(--color-cream-muted); font: 12px 'DM Sans', sans-serif; cursor: pointer; }.party-input__save { background: var(--color-accent); border: none; border-radius: 8px; padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; color: var(--color-cream); cursor: pointer; letter-spacing: 0.06em; }
 .guest-list-wrap { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 360px; padding-top: 8px; }.guest-list__title { color: var(--color-cream); font: 22px 'Cormorant Garamond', serif; letter-spacing: .02em; }.guest-list__hint { color: var(--color-cream-muted); font: 11px 'DM Sans', sans-serif; letter-spacing: .04em; opacity: .6; }.guest-tags { display: flex; flex-wrap: wrap; gap: 8px; }.guest-tag { display: flex; align-items: center; gap: 6px; padding: 6px 10px 6px 14px; border: 1px solid var(--color-surface-raised); border-radius: 100px; background: var(--color-surface); color: var(--color-cream); font: 13px 'DM Sans', sans-serif; }.guest-tag__remove { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; padding: 0; border: none; background: none; color: var(--color-cream-muted); font-size: 16px; line-height: 1; cursor: pointer; }

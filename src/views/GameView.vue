@@ -131,8 +131,11 @@ function restartGame() {
   <div class="game">
     <div class="top-bar">
       <button class="hex-btn" type="button" aria-label="menu" @click="showMenu = true"><HexIcon /></button>
-      <button class="icon-btn" type="button" aria-label="home" @click="emit('home')">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M8 4 L2 10 L8 16" stroke="var(--color-cream-muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><line x1="2" y1="10" x2="18" y2="10" stroke="var(--color-cream-muted)" stroke-width="1.5" stroke-linecap="round" /></svg>
+      <button class="icon-btn" type="button" aria-label="Leaderboard" @click="showLeaderboard = true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2.5 20 7v10l-8 4.5L4 17V7l8-4.5Z" stroke="var(--color-cream-muted)" stroke-width="1.25" />
+          <path d="M8 15v-3M12 15V9M16 15v-6" stroke="var(--color-cream-muted)" stroke-width="1.25" stroke-linecap="round" />
+        </svg>
       </button>
     </div>
 
