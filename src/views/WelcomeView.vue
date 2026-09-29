@@ -5,7 +5,7 @@ import { useAccessibility } from '@/composables/useAccessibility'
 import HexIcon from '@/components/HexIcon.vue'
 import RestartIcon from '@/components/RestartIcon.vue'
 
-const emit = defineEmits<{ play: []; rules: []; guestbook: [] }>()
+const emit = defineEmits<{ play: []; rules: []; guestbook: []; about: [] }>()
 const { sessionPlayers, addToSession, removeFromSession } = usePlayers()
 const { isAccessibilityMode, toggleAccessibilityMode } = useAccessibility()
 const guestListMode = ref(false)
@@ -111,6 +111,7 @@ const tonight = new Date().toLocaleDateString('en-US', {
         <button class="menu-item" type="button" @click="emit('play'); showMenu = false"><span class="menu-item__icon"><RestartIcon /></span><span>let's play</span></button>
         <button class="menu-item" type="button" @click="emit('rules'); showMenu = false"><span class="menu-item__icon">△</span><span>house rules</span></button>
         <button class="menu-item" type="button" @click="emit('guestbook'); showMenu = false"><span class="menu-item__icon">✦</span><span>guest book</span></button>
+        <button class="menu-item" type="button" @click="emit('about'); showMenu = false"><span class="menu-item__icon">◇</span><span>about</span></button>
         <div class="menu-footer">
           <button class="accessibility-toggle" type="button" role="switch" :aria-checked="isAccessibilityMode" @click="toggleAccessibilityMode">
             <span>accessibility</span>

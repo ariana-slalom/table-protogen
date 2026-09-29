@@ -9,7 +9,7 @@ import LeaderboardIcon from '@/components/LeaderboardIcon.vue'
 import RestartIcon from '@/components/RestartIcon.vue'
 import TimerView from '@/views/TimerView.vue'
 
-const emit = defineEmits<{ menu: []; rules: []; guestbook: []; home: [] }>()
+const emit = defineEmits<{ menu: []; rules: []; guestbook: []; home: []; about: [] }>()
 const {
   deck, currentCard, currentIndex, activeCategoryId, isFirst, isLast,
   isEndOfCategory, isEndOfDeck, next, prev, setCategory, reshuffleCategory, shuffleAll
@@ -262,6 +262,7 @@ function restartGame() {
         <button class="menu-item" type="button" @click="emit('rules'); showMenu = false"><span class="menu-item__icon">△</span><span>house rules</span></button>
         <button class="menu-item" type="button" @click="showLeaderboard = true; showMenu = false"><span class="menu-item__icon"><LeaderboardIcon /></span><span>leaderboard</span></button>
         <button class="menu-item" type="button" @click="emit('guestbook'); showMenu = false"><span class="menu-item__icon">✦</span><span>guest book</span></button>
+        <button class="menu-item" type="button" @click="emit('about'); showMenu = false"><span class="menu-item__icon">◇</span><span>about</span></button>
         <div class="menu-footer">
           <button class="accessibility-toggle" type="button" role="switch" :aria-checked="isAccessibilityMode" @click="toggleAccessibilityMode">
             <span>accessibility</span>
