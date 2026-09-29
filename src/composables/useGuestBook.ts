@@ -18,6 +18,8 @@ async function fetchEntries() {
   error.value = null
 
   try {
+    if (!supabase) throw new Error('Guest book is not configured')
+
     const { data, error: err } = await supabase
       .from('guest_book')
       .select('*')
@@ -38,6 +40,8 @@ async function addEntry(name: string, message: string, prompt?: string) {
   error.value = null
 
   try {
+    if (!supabase) throw new Error('Guest book is not configured')
+
     const { error: err } = await supabase
       .from('guest_book')
       .insert({ name, message, prompt: prompt || null })
