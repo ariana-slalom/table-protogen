@@ -138,7 +138,7 @@ function restartGame() {
     </div>
 
     <div class="category-strip">
-        <button class="cat-chip" :class="{ active: activeCategoryId === 'all' }" type="button" @click="setCategory('all')">mix</button>
+        <button class="cat-chip" :class="{ active: activeCategoryId === 'all' }" type="button" @click="setCategory('all')">shuffle</button>
         <button v-for="categoryItem in CATEGORIES" :key="categoryItem.id" class="cat-chip" type="button" :class="{ active: activeCategoryId === categoryItem.id }" :style="activeCategoryId === categoryItem.id ? { background: categoryItem.color, borderColor: categoryItem.color, color: 'var(--color-ink)' } : {}" @click="setCategory(categoryItem.id)">{{ categoryItem.label }}</button>
     </div>
 
