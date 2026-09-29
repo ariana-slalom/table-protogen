@@ -4,9 +4,10 @@ import LandingView from '@/views/LandingView.vue'
 import PlayerSetupView from '@/views/PlayerSetupView.vue'
 import WelcomeView from '@/views/WelcomeView.vue'
 import GameView from '@/views/GameView.vue'
+import GuestBookView from '@/views/GuestBookView.vue'
 import HouseRulesView from '@/views/HouseRulesView.vue'
 
-type Stage = 'landing' | 'setup' | 'welcome' | 'game' | 'rules'
+type Stage = 'landing' | 'setup' | 'welcome' | 'game' | 'rules' | 'guestbook'
 
 const stage = ref<Stage>('landing')
 const isDesktop = ref(false)
@@ -50,9 +51,10 @@ function onAuth() {
         <div class="phone-screen">
           <LandingView v-if="stage === 'landing'" @authenticated="onAuth" />
           <PlayerSetupView v-else-if="stage === 'setup'" @ready="stage = 'welcome'" />
-          <WelcomeView v-else-if="stage === 'welcome'" @play="stage = 'game'" @rules="stage = 'rules'" />
+          <WelcomeView v-else-if="stage === 'welcome'" @play="stage = 'game'" @rules="stage = 'rules'" @guestbook="stage = 'guestbook'" />
           <HouseRulesView v-else-if="stage === 'rules'" @back="stage = 'welcome'" />
-          <GameView v-else @menu="stage = 'welcome'" @rules="stage = 'rules'" />
+          <GuestBookView v-else-if="stage === 'guestbook'" @back="stage = 'welcome'" />
+          <GameView v-else @home="stage = 'welcome'" @rules="stage = 'rules'" @guestbook="stage = 'guestbook'" />
         </div>
         <div class="phone-chin"></div>
       </div>
@@ -61,9 +63,10 @@ function onAuth() {
   <template v-else>
     <LandingView v-if="stage === 'landing'" @authenticated="onAuth" />
     <PlayerSetupView v-else-if="stage === 'setup'" @ready="stage = 'welcome'" />
-    <WelcomeView v-else-if="stage === 'welcome'" @play="stage = 'game'" @rules="stage = 'rules'" />
+    <WelcomeView v-else-if="stage === 'welcome'" @play="stage = 'game'" @rules="stage = 'rules'" @guestbook="stage = 'guestbook'" />
     <HouseRulesView v-else-if="stage === 'rules'" @back="stage = 'welcome'" />
-    <GameView v-else @menu="stage = 'welcome'" @rules="stage = 'rules'" />
+    <GuestBookView v-else-if="stage === 'guestbook'" @back="stage = 'welcome'" />
+    <GameView v-else @home="stage = 'welcome'" @rules="stage = 'rules'" @guestbook="stage = 'guestbook'" />
   </template>
 </template>
 

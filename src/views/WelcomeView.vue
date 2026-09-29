@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { usePlayers } from '@/composables/usePlayers'
+import HexIcon from '@/components/HexIcon.vue'
 
-const emit = defineEmits<{ play: []; rules: [] }>()
+const emit = defineEmits<{ play: []; rules: []; guestbook: [] }>()
 const { sessionPlayers, addToSession } = usePlayers()
 const showPartyInput = ref(false)
 const showMenu = ref(false)
@@ -50,12 +51,7 @@ const tonight = new Date().toLocaleDateString('en-US', {
 <template>
   <div class="welcome">
     <div class="welcome-topbar">
-      <button class="menu-btn" type="button" aria-label="menu" @click="showMenu = true">
-        <svg width="22" height="14" viewBox="0 0 22 14" fill="none" aria-hidden="true">
-          <line x1="0" y1="2" x2="22" y2="2" stroke="var(--color-cream-muted)" stroke-width="1.5" stroke-linecap="round" />
-          <line x1="5" y1="12" x2="22" y2="12" stroke="var(--color-cream-muted)" stroke-width="1.5" stroke-linecap="round" />
-        </svg>
-      </button>
+      <button class="hex-btn" type="button" aria-label="menu" @click="showMenu = true"><HexIcon /></button>
     </div>
     <div class="welcome__header">
       <p class="welcome__date">{{ tonight }}</p>
@@ -100,9 +96,11 @@ const tonight = new Date().toLocaleDateString('en-US', {
     <div v-if="showMenu" class="overlay" @click="showMenu = false">
       <div class="bottom-sheet" @click.stop>
         <div class="sheet-handle"></div>
-        <button class="menu-item" type="button" @click="emit('rules'); showMenu = false">◇ house rules</button>
-        <button class="menu-item" type="button" @click="showMenu = false">○ leaderboard</button>
-        <button class="menu-item menu-item--danger" type="button" @click="restartGame">△ restart game</button>
+        <button class="menu-item" type="button" @click="showMenu = false">◈ home</button>
+        <button class="menu-item" type="button" @click="emit('play'); showMenu = false">◇ let's play</button>
+        <button class="menu-item" type="button" @click="emit('rules'); showMenu = false">△ house rules</button>
+        <button class="menu-item" type="button" @click="emit('guestbook'); showMenu = false">✦ guest book</button>
+        <button class="menu-item menu-item--danger" type="button" @click="restartGame">○ restart game</button>
         <button class="sheet-close" type="button" @click="showMenu = false">close</button>
       </div>
     </div>
@@ -112,7 +110,7 @@ const tonight = new Date().toLocaleDateString('en-US', {
 <style scoped>
 .welcome { position: relative; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 0 24px 40px; background: var(--color-bg); gap: 28px; overflow: hidden; }
 @media (min-width: 769px) { .welcome { min-height: calc(852px - 70px); } }
-.welcome-topbar { width: 100%; display: flex; justify-content: flex-start; padding: 0 8px; }.menu-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; }
+.welcome-topbar { width: 100%; display: flex; justify-content: flex-start; padding: 0 8px; }.hex-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; }
 .welcome__header { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }.welcome__date, .party-msg__label, .party-input__label, .decks-coming__label { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--color-cream-muted); letter-spacing: 0.12em; text-transform: uppercase; }.welcome__date, .decks-coming__label { font-size: 10px; }.wordmark { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 400; color: var(--color-cream); letter-spacing: 0.06em; line-height: 1; }.welcome__greeting { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; color: var(--color-cream-muted); }.welcome__players { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--color-gold); letter-spacing: 0.04em; }
 .party-input-wrap { width: 100%; max-width: 360px; background: var(--color-surface); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }.party-input__label { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--color-cream-muted); letter-spacing: 0.1em; text-transform: uppercase; }.party-input__field { background: var(--color-bg); border: 1px solid var(--color-surface-raised); border-radius: 8px; padding: 12px 14px; color: var(--color-cream); font-family: 'Cormorant Garamond', serif; font-size: 17px; resize: none; outline: none; caret-color: var(--color-accent); line-height: 1.5; }.party-input__field:focus { border-color: var(--color-accent); }.party-input__actions { display: flex; gap: 8px; justify-content: flex-end; }.party-input__cancel { align-self: auto; padding: 8px 12px; background: none; border: none; color: var(--color-cream-muted); font: 12px 'DM Sans', sans-serif; cursor: pointer; }.party-input__save { background: var(--color-accent); border: none; border-radius: 8px; padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; color: var(--color-cream); cursor: pointer; letter-spacing: 0.06em; }
 .deck-badge { display: flex; align-items: center; gap: 10px; border: 1px solid var(--color-surface-raised); border-radius: 100px; padding: 8px 16px; }.deck-badge__num { font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--color-gold); }.deck-badge__label { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--color-cream-muted); letter-spacing: 0.08em; text-transform: uppercase; }
