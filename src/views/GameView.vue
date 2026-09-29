@@ -1,68 +1,195 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useDeck } from '@/composables/useDeck'
 import { usePlayers } from '@/composables/usePlayers'
 import { CATEGORIES } from '@/data/categories'
+
 const emit = defineEmits<{ menu: []; rules: [] }>()
-const { deck, currentCard, currentIndex, activeCategoryId, isFirst, isLast, isEndOfCategory, isEndOfDeck, next, prev, setCategory, reshuffleCategory, shuffleAll } = useDeck()
+const {
+  deck, currentCard, currentIndex, activeCategoryId, isFirst, isLast,
+  isEndOfCategory, isEndOfDeck, next, prev, setCategory, reshuffleCategory, shuffleAll
+} = useDeck()
 const { sessionPlayers, awardPoint } = usePlayers()
+
 const threshold = 80
-const dragX = ref(0), isDragging = ref(false), isExiting = ref(false), exitDir = ref<'left' | 'right'>('left')
-const showScoreRow = ref(false), showLeaderboard = ref(false), showDebate = ref(false)
-let startX = 0
-function commitSwipe(dir: 'left' | 'right', action: () => void) { exitDir.value = dir; isExiting.value = true; setTimeout(() => { action(); dragX.value = 0; isExiting.value = false }, 320) }
-function onTouchStart(event: TouchEvent) { startX = event.touches[0].clientX; isDragging.value = true; function move(moveEvent: TouchEvent) { dragX.value = moveEvent.touches[0].clientX - startX } function end() { isDragging.value = false; if (dragX.value < -threshold && !isLast.value) commitSwipe('left', next); else if (dragX.value > threshold && !isFirst.value) commitSwipe('right', prev); else dragX.value = 0; document.removeEventListener('touchmove', move); document.removeEventListener('touchend', end) }; document.addEventListener('touchmove', move, { passive: true }); document.addEventListener('touchend', end) }
+const dragX = ref(0)
+const isDragging = ref(false)
+const isExiting = ref(false)
+const exitDirection = ref<'left' | 'right'>('left')
+const showScoreRow = ref(false)
+const showLeaderboard = ref(false)
+const showDebate = ref(false)
 const isDesktopDevice = !('ontouchstart' in window)
-function handleDesktopClick(event: MouseEvent) { if (!isDesktopDevice || isExiting.value || isEndOfCategory.value || isEndOfDeck.value) return; const rect = (event.currentTarget as HTMLElement).getBoundingClientRect(); const clickX = event.clientX - rect.left; if (clickX > rect.width / 2 && !isLast.value) commitSwipe('left', next); else if (clickX <= rect.width / 2 && !isFirst.value) commitSwipe('right', prev) }
+
+function commitSwipe(direction: 'left' | 'right', action: () => void) {
+  exitDirection.value = direction
+  isExiting.value = true
+  setTimeout(() => {
+    action()
+    dragX.value = 0
+    isExiting.value = false
+  }, 320)
+}
+
+function onTouchStart(event: TouchEvent) {
+  const startX = event.touches[0].clientX
+  isDragging.value = true
+
+  function move(moveEvent: TouchEvent) {
+    dragX.value = moveEvent.touches[0].clientX - startX
+  }
+
+  function end() {
+    isDragging.value = false
+    if (dragX.value < -threshold && !isLast.value) commitSwipe('left', next)
+    else if (dragX.value > threshold && !isFirst.value) commitSwipe('right', prev)
+    else dragX.value = 0
+    document.removeEventListener('touchmove', move)
+    document.removeEventListener('touchend', end)
+  }
+
+  document.addEventListener('touchmove', move, { passive: true })
+  document.addEventListener('touchend', end)
+}
+
+function handleDesktopClick(event: MouseEvent) {
+  if (!isDesktopDevice || isExiting.value || isEndOfCategory.value || isEndOfDeck.value) return
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+  if (event.clientX - rect.left > rect.width / 2 && !isLast.value) commitSwipe('left', next)
+  else if (event.clientX - rect.left <= rect.width / 2 && !isFirst.value) commitSwipe('right', prev)
+}
+
 const cardStyle = computed(() => {
   if (isExiting.value) {
     return {
-      transform: `translateX(${exitDir.value === 'left' ? '-125%' : '125%'}) rotate(${exitDir.value === 'left' ? '-8deg' : '8deg'})`,
+      transform: `translateX(${exitDirection.value === 'left' ? '-125%' : '125%'}) rotate(${exitDirection.value === 'left' ? '-8deg' : '8deg'})`,
       transition: 'transform 0.32s cubic-bezier(0.4, 0, 0.8, 0.6), opacity 0.32s ease',
       opacity: '0'
     }
   }
-  if (isDragging.value) {
-    return {
-      transform: `translateX(${dragX.value}px) rotate(${dragX.value * 0.02}deg)`,
-      transition: 'none'
-    }
-  }
+  if (isDragging.value) return { transform: `translateX(${dragX.value}px) rotate(${dragX.value * 0.02}deg)`, transition: 'none' }
   return { transition: 'transform 0.22s ease-out' }
 })
+
 const category = computed(() => currentCard.value.categoryId ? CATEGORIES.find(item => item.id === currentCard.value.categoryId) : undefined)
-const categoryColor = computed(() => category.value?.color || 'var(--color-cream-muted)'), categoryLabel = computed(() => category.value?.label)
-const sortedPlayers = computed(() => [...sessionPlayers.value].sort((first, second) => second.score - first.score)), categoriesVisible = computed(() => currentIndex.value > 0)
-const debateContent = { ruling: 'The table is divided — as it should be. Here is what the record shows.', sources: [{ label: 'Serious Eats — The Food Lab', url: 'https://www.seriouseats.com' }, { label: 'The Noma Guide to Fermentation', url: 'https://www.penguinrandomhouse.com/books/569799' }, { label: 'Salt Fat Acid Heat — Samin Nosrat', url: 'https://www.saltfatacidheat.com' }] }
-function triggerScoring() { if (currentCard.value.id !== 'card-zero' && !isEndOfCategory.value && !isEndOfDeck.value) showScoreRow.value = true }
-function handleAward(id: string) { awardPoint(id); showScoreRow.value = false }
+const categoryLabel = computed(() => category.value?.label)
+const categoryColor = computed(() => category.value?.color || 'var(--color-cream-muted)')
+const categoriesVisible = computed(() => currentIndex.value > 0)
+const sortedPlayers = computed(() => [...sessionPlayers.value].sort((first, second) => second.score - first.score))
+const debateSources = [
+  { label: 'Serious Eats - The Food Lab', url: 'https://www.seriouseats.com' },
+  { label: 'The Noma Guide to Fermentation', url: 'https://www.penguinrandomhouse.com/books/569799' },
+  { label: 'Salt Fat Acid Heat - Samin Nosrat', url: 'https://www.saltfatacidheat.com' }
+]
+
+function award(id: string) {
+  awardPoint(id)
+  showScoreRow.value = false
+}
 </script>
 
 <template>
   <div class="game">
-    <div class="top-bar"><button class="menu-btn" type="button" aria-label="main menu" @click="emit('menu')"><svg width="22" height="14" viewBox="0 0 22 14" fill="none"><line x1="0" y1="2" x2="22" y2="2" stroke="var(--color-cream-muted)" stroke-width="1.5" stroke-linecap="round"/><line x1="5" y1="12" x2="22" y2="12" stroke="var(--color-cream-muted)" stroke-width="1.5" stroke-linecap="round"/></svg></button><button class="icon-btn" type="button" aria-label="leaderboard" @click="showLeaderboard = true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="11" width="4" height="7" rx="1" fill="var(--color-cream-muted)"/><rect x="8" y="7" width="4" height="11" rx="1" fill="var(--color-cream-muted)"/><rect x="14" y="3" width="4" height="15" rx="1" fill="var(--color-cream-muted)"/></svg></button></div>
-    <Transition name="fade"><div v-if="categoriesVisible" class="category-strip"><button class="cat-chip" :class="{ active: activeCategoryId === 'all' }" type="button" @click="setCategory('all')">all</button><button v-for="cat in CATEGORIES" :key="cat.id" class="cat-chip" :class="{ active: activeCategoryId === cat.id }" :style="activeCategoryId === cat.id ? { background: cat.color, borderColor: cat.color, color: 'var(--color-ink)', fontWeight: '600' } : {}" type="button" @click="setCategory(cat.id)">{{ cat.label }}</button></div></Transition>
+    <div class="top-bar">
+      <button class="icon-btn" type="button" aria-label="Main menu" @click="emit('menu')">
+        <span class="menu-glyph">=</span>
+      </button>
+      <button class="icon-btn" type="button" aria-label="Leaderboard" @click="showLeaderboard = true">
+        <span class="chart-glyph">▂▅█</span>
+      </button>
+    </div>
+
+    <Transition name="fade">
+      <div v-if="categoriesVisible" class="category-strip">
+        <button class="cat-chip" :class="{ active: activeCategoryId === 'all' }" type="button" @click="setCategory('all')">all</button>
+        <button v-for="categoryItem in CATEGORIES" :key="categoryItem.id" class="cat-chip" type="button" :class="{ active: activeCategoryId === categoryItem.id }" :style="activeCategoryId === categoryItem.id ? { background: categoryItem.color, borderColor: categoryItem.color, color: 'var(--color-ink)' } : {}" @click="setCategory(categoryItem.id)">{{ categoryItem.label }}</button>
+      </div>
+    </Transition>
     <div v-if="!categoriesVisible" class="category-spacer"></div>
+
     <div class="card-wrap" @touchstart="onTouchStart" @click="handleDesktopClick">
       <div v-if="!isEndOfCategory && !isEndOfDeck" class="card card--ghost"></div>
-      <div v-if="isEndOfCategory" class="card card--end"><p class="end-title">You've tasted everything<br>in this category.</p><div class="end-actions"><button class="end-btn" type="button" @click="reshuffleCategory">shuffle again</button><button class="end-btn end-btn--accent" type="button" @click="shuffleAll">mix it all up</button><div class="end-cats"><p>pick another</p><div><button v-for="cat in CATEGORIES" :key="cat.id" class="cat-chip" type="button" :style="{ borderColor: cat.color, color: cat.color }" @click="setCategory(cat.id)">{{ cat.label }}</button></div></div></div></div>
-      <div v-else-if="isEndOfDeck" class="card card--end"><p class="end-title">That's all for now.</p><p class="end-sub">The table has spoken.</p><div class="end-actions"><button class="end-btn end-btn--accent" type="button" @click="shuffleAll">reshuffle the deck</button><button class="end-btn" type="button" @click="showLeaderboard = true">view leaderboard</button></div></div>
-      <div v-else class="card" :class="{ 'card--wiggle': !isDragging && !isExiting && currentIndex > 0 }" :style="cardStyle"><span v-if="categoryLabel" class="card__category" :style="{ color: categoryColor }">{{ categoryLabel }}</span><p class="card__prompt">{{ currentCard.prompt }}</p><p v-if="currentCard.note" class="card__note">{{ currentCard.note }}</p><div class="card__footer"><span>{{ currentCard.id === 'card-zero' ? '·' : `#${currentIndex}` }}</span><button v-if="currentCard.id !== 'card-zero'" class="debate-btn" type="button" @click.stop="showDebate = true">debate this</button></div></div>
+
+      <section v-if="isEndOfCategory" class="card card--end">
+        <p class="end-title">You've tasted everything<br>in this category.</p>
+        <div class="end-actions">
+          <button class="end-btn" type="button" @click="reshuffleCategory">shuffle again</button>
+          <button class="end-btn end-btn--accent" type="button" @click="shuffleAll">mix it all up</button>
+          <p class="end-label">pick another</p>
+          <div class="end-categories">
+            <button v-for="categoryItem in CATEGORIES" :key="categoryItem.id" class="cat-chip" type="button" :style="{ borderColor: categoryItem.color, color: categoryItem.color }" @click="setCategory(categoryItem.id)">{{ categoryItem.label }}</button>
+          </div>
+        </div>
+      </section>
+
+      <section v-else-if="isEndOfDeck" class="card card--end">
+        <p class="end-title">That's all for now.</p>
+        <p class="end-subtitle">The table has spoken.</p>
+        <div class="end-actions">
+          <button class="end-btn end-btn--accent" type="button" @click="shuffleAll">reshuffle the deck</button>
+          <button class="end-btn" type="button" @click="showLeaderboard = true">view leaderboard</button>
+        </div>
+      </section>
+
+      <section v-else class="card" :class="{ 'card--wiggle': !isDragging && !isExiting && currentIndex > 0 }" :style="cardStyle">
+        <span v-if="categoryLabel" class="card-category" :style="{ color: categoryColor }">{{ categoryLabel }}</span>
+        <p class="card-prompt">{{ currentCard.prompt }}</p>
+        <p v-if="currentCard.note" class="card-note">{{ currentCard.note }}</p>
+        <footer class="card-footer">
+          <span>{{ currentCard.id === 'card-zero' ? '·' : `#${currentIndex}` }}</span>
+          <button v-if="currentCard.id !== 'card-zero'" class="debate-btn" type="button" @click.stop="showDebate = true">debate this</button>
+        </footer>
+      </section>
     </div>
-    <div v-if="!isEndOfCategory && !isEndOfDeck" class="card-counter">{{ currentIndex }} · {{ deck.length - 3 }}</div><div v-if="currentIndex === 0" class="swipe-hint">swipe left to advance · swipe right to go back</div><div v-else-if="!isEndOfCategory && !isEndOfDeck" class="swipe-hint">← · →</div>
-    <button v-if="currentCard.id !== 'card-zero' && !showScoreRow && !isEndOfCategory && !isEndOfDeck" class="award-trigger" type="button" @click="triggerScoring">+ award point</button>
-    <div v-if="showScoreRow" class="score-row"><p>who won this round?</p><div><button v-for="player in sessionPlayers" :key="player.id" class="score-player-btn" type="button" @click="handleAward(player.id)">{{ player.name }}</button><button class="score-player-btn score-player-btn--skip" type="button" @click="showScoreRow = false">nobody</button></div></div>
-    <div v-if="showLeaderboard" class="overlay" @click="showLeaderboard = false"><div class="bottom-sheet" @click.stop><div class="sheet-handle"></div><div class="sommelier"><svg width="60" height="80" viewBox="0 0 60 80" fill="none"><line x1="30" y1="52" x2="30" y2="72" stroke="var(--color-cream-muted)" stroke-width="1.5"/><line x1="18" y1="72" x2="42" y2="72" stroke="var(--color-cream-muted)" stroke-width="1.5"/><path d="M16 16 Q14 36 22 48 Q26 52 30 52 Q34 52 38 48 Q46 36 44 16 Z" fill="var(--color-surface-raised)" stroke="var(--color-cream-muted)" stroke-width="1.2"/><path d="M19 32 Q18 42 22 48 Q26 52 30 52 Q34 52 38 48 Q42 42 41 32 Z" fill="var(--color-accent)" opacity="0.4"/><text x="30" y="10" text-anchor="middle" font-size="10" fill="var(--color-gold)">★</text></svg></div><h2>leaderboard</h2><div class="leaderboard"><div v-for="(player, index) in sortedPlayers" :key="player.id"><span :class="{ gold: index === 0 }">{{ index === 0 ? '★' : index + 1 }}</span><strong>{{ player.name }}</strong><b>{{ player.score }}</b></div></div><button class="sheet-close" type="button" @click="showLeaderboard = false">close</button></div></div>
-    <div v-if="showDebate" class="overlay" @click="showDebate = false"><div class="bottom-sheet" @click.stop><div class="sheet-handle"></div><h2>settle it</h2><p class="debate-prompt">{{ currentCard.prompt }}</p><p>{{ debateContent.ruling }}</p><div class="debate-sources"><a v-for="source in debateContent.sources" :key="source.url" :href="source.url" target="_blank" rel="noopener">{{ source.label }}</a></div><button class="sheet-close" type="button" @click="showDebate = false">close</button></div></div>
+
+    <p v-if="!isEndOfCategory && !isEndOfDeck" class="card-counter">{{ currentIndex }} · {{ deck.length - 2 }}</p>
+    <p v-if="currentIndex === 0" class="swipe-hint">swipe left to advance · swipe right to go back</p>
+    <p v-else-if="!isEndOfCategory && !isEndOfDeck" class="swipe-hint">← · →</p>
+    <button v-if="currentCard.id !== 'card-zero' && !showScoreRow && !isEndOfCategory && !isEndOfDeck" class="award-trigger" type="button" @click="showScoreRow = true">+ award point</button>
+
+    <div v-if="showScoreRow" class="score-row">
+      <p>who won this round?</p>
+      <div class="score-options">
+        <button v-for="player in sessionPlayers" :key="player.id" class="score-player" type="button" @click="award(player.id)">{{ player.name }}</button>
+        <button class="score-player muted" type="button" @click="showScoreRow = false">nobody</button>
+      </div>
+    </div>
+
+    <div v-if="showLeaderboard" class="overlay" @click="showLeaderboard = false">
+      <section class="bottom-sheet" @click.stop>
+        <div class="sheet-handle"></div>
+        <div class="sommelier">♢</div>
+        <h2>leaderboard</h2>
+        <div class="leaderboard">
+          <div v-for="(player, index) in sortedPlayers" :key="player.id" class="leaderboard-row">
+            <span :class="{ gold: index === 0 }">{{ index === 0 ? '★' : index + 1 }}</span>
+            <strong>{{ player.name }}</strong>
+            <b>{{ player.score }}</b>
+          </div>
+        </div>
+        <button class="sheet-close" type="button" @click="showLeaderboard = false">close</button>
+      </section>
+    </div>
+
+    <div v-if="showDebate" class="overlay" @click="showDebate = false">
+      <section class="bottom-sheet" @click.stop>
+        <div class="sheet-handle"></div>
+        <h2>settle it</h2>
+        <p class="debate-prompt">{{ currentCard.prompt }}</p>
+        <p>The table is divided - as it should be. Here is what the record shows.</p>
+        <div class="debate-sources"><a v-for="source in debateSources" :key="source.url" :href="source.url" target="_blank" rel="noopener">{{ source.label }}</a></div>
+        <button class="sheet-close" type="button" @click="showDebate = false">close</button>
+      </section>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.game{position:relative;overflow:hidden;min-height:100vh;display:flex;flex-direction:column;align-items:center;background:var(--color-bg);padding-bottom:32px}@media (min-width:769px){.game{min-height:calc(852px - 70px)}}.top-bar{width:100%;display:flex;justify-content:space-between;padding:16px}.menu-btn,.icon-btn{width:44px;height:44px;background:none;border:0;display:grid;place-items:center;cursor:pointer}.category-strip{width:100%;display:flex;gap:8px;overflow-x:auto;padding:0 16px 12px;scrollbar-width:none}.category-spacer{height:12px}.cat-chip{flex-shrink:0;height:32px;padding:0 14px;border-radius:100px;border:1px solid var(--color-surface-raised);background:transparent;color:var(--color-cream-muted);font:12px 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap}.cat-chip.active{background:var(--color-cream);color:var(--color-ink);border-color:var(--color-cream)}.fade-enter-active{transition:opacity .4s ease}.fade-enter-from{opacity:0}.card-wrap{position:relative;width:calc(100% - 40px);max-width:380px;min-height:420px;flex:1;display:grid;place-items:center;touch-action:pan-y;cursor:pointer}.card{position:absolute;width:100%;min-height:420px;background:var(--color-surface);border-radius:20px;padding:32px 28px 28px;box-shadow:0 8px 40px rgb(0 0 0 / .5);display:flex;flex-direction:column;gap:16px;user-select:none}.card--ghost{transform:scale(.96) translateY(8px);opacity:.35;pointer-events:none}.card--end{justify-content:center;align-items:center;text-align:center;gap:24px}.end-title{font:26px/1.3 'Cormorant Garamond',serif;color:var(--color-cream)}.end-sub{font:italic 18px 'Cormorant Garamond',serif;color:var(--color-cream-muted)}.end-actions{width:100%;display:flex;flex-direction:column;gap:10px}.end-btn,.sheet-close{height:48px;border-radius:12px;border:1px solid var(--color-surface-raised);background:var(--color-surface-raised);color:var(--color-cream-muted);font:13px 'DM Sans',sans-serif;cursor:pointer}.end-btn--accent{background:var(--color-accent);border-color:var(--color-accent);color:var(--color-cream)}.end-cats p{font:10px 'DM Sans',sans-serif;color:var(--color-cream-muted);text-transform:uppercase;margin:10px}.card__category{font:600 11px 'DM Sans',sans-serif;letter-spacing:.14em;text-transform:uppercase}.card__prompt{font:26px/1.35 'Cormorant Garamond',serif;color:var(--color-cream);flex:1}.card__note{font:italic 12px/1.5 'DM Sans',sans-serif;color:var(--color-cream-muted);border-top:1px solid var(--color-surface-raised);padding-top:12px}.card__footer{display:flex;justify-content:space-between;color:var(--color-cream-muted);font:11px 'DM Sans',sans-serif}.debate-btn,.award-trigger{border:1px solid var(--color-surface-raised);border-radius:100px;background:none;color:var(--color-cream-muted);font:12px 'DM Sans',sans-serif;padding:8px 16px;cursor:pointer}@keyframes wiggle{0%,100%{transform:rotate(0) translateX(0)}15%{transform:rotate(.4deg) translateX(2px)}30%{transform:rotate(-.3deg) translateX(-1px)}45%{transform:rotate(.2deg) translateX(1px)}}.card--wiggle{animation:wiggle 4s ease-in-out infinite 1.5s}.card-counter,.swipe-hint{font:11px 'DM Sans',sans-serif;color:var(--color-cream);opacity:.5;letter-spacing:.12em;margin-top:8px}.award-trigger{margin-top:16px}.score-row{width:100%;padding:16px 20px 0;text-align:center;color:var(--color-cream-muted);font:11px 'DM Sans',sans-serif;text-transform:uppercase}.score-row div{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px}.score-player-btn{height:44px;padding:0 20px;border-radius:100px;border:1px solid var(--color-surface-raised);background:var(--color-surface);color:var(--color-cream);cursor:pointer}.score-player-btn--skip{color:var(--color-cream-muted)}.overlay{position:absolute;inset:0;background:rgb(0 0 0 / .65);z-index:100;display:flex;align-items:flex-end;backdrop-filter:blur(4px)}.bottom-sheet{width:100%;max-height:85%;overflow-y:auto;background:var(--color-surface);border-radius:24px 24px 0 0;padding:16px 24px 40px;display:flex;flex-direction:column;gap:14px;color:var(--color-cream)}.sheet-handle{width:40px;height:4px;background:var(--color-surface-raised);border-radius:2px;margin:auto}.sommelier{display:flex;justify-content:center}.bottom-sheet h2{font:28px 'Cormorant Garamond',serif}.leaderboard div{display:flex;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--color-surface-raised)}.leaderboard strong{font:20px 'Cormorant Garamond',serif;flex:1}.leaderboard b,.gold{color:var(--color-gold)}.debate-prompt{font:italic 18px/1.4 'Cormorant Garamond',serif;color:var(--color-cream-muted)}.debate-sources{display:flex;flex-direction:column;gap:8px}.debate-sources a{padding:10px 14px;border-radius:8px;background:var(--color-surface-raised);color:var(--color-accent);font:12px 'DM Sans',sans-serif;text-decoration:none}
-</style>
-.sheet-handle { width: 40px; height: 4px; background: var(--color-surface-raised); border-radius: 2px; margin: 0 auto 8px; }.sheet-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 400; color: var(--color-cream); letter-spacing: 0.04em; }
-.sheet-close { background: var(--color-surface-raised); border: none; border-radius: 12px; height: 48px; color: var(--color-cream-muted); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; letter-spacing: 0.08em; margin-top: 8px; }
-.leaderboard, .debate-sources { display: flex; flex-direction: column; gap: 4px; }.lb-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--color-surface-raised); gap: 16px; }.lb-rank { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--color-cream-muted); width: 16px; }.lb-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--color-cream); flex: 1; }.lb-score { font-family: 'DM Sans', sans-serif; font-size: 24px; font-weight: 300; color: var(--color-gold); }
-.debate-prompt { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--color-cream-muted); font-style: italic; line-height: 1.4; }.debate-ruling { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--color-cream); line-height: 1.6; }.debate-sources { gap: 8px; }.debate-source-link { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--color-accent); text-decoration: none; padding: 10px 14px; background: var(--color-surface-raised); border-radius: 8px; letter-spacing: 0.02em; }
-.fade-enter-active { transition: opacity 0.4s ease; }.fade-enter-from { opacity: 0; }
+.game { position: relative; min-height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; background: var(--color-bg); padding-bottom: 32px; }
+@media (min-width: 769px) { .game { min-height: calc(852px - 70px); } }
+.top-bar { width: 100%; display: flex; justify-content: space-between; padding: 16px; }.icon-btn { width: 44px; height: 44px; border: 0; background: none; color: var(--color-cream-muted); cursor: pointer; }.menu-glyph { font-size: 24px; }.chart-glyph { font-size: 16px; letter-spacing: 2px; }.category-strip { display: flex; gap: 8px; width: 100%; overflow-x: auto; padding: 0 16px 12px; scrollbar-width: none; }.category-spacer { height: 12px; }.cat-chip { flex: 0 0 auto; height: 32px; padding: 0 14px; border: 1px solid var(--color-surface-raised); border-radius: 100px; background: transparent; color: var(--color-cream-muted); font: 12px 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap; }.cat-chip.active { background: var(--color-cream); border-color: var(--color-cream); color: var(--color-ink); }.fade-enter-active { transition: opacity .4s ease; }.fade-enter-from { opacity: 0; }
+.card-wrap { position: relative; display: grid; flex: 1; place-items: center; width: calc(100% - 40px); max-width: 380px; min-height: 420px; cursor: pointer; touch-action: pan-y; }.card { position: absolute; display: flex; flex-direction: column; gap: 16px; width: 100%; min-height: 420px; padding: 32px 28px 28px; border-radius: 20px; background: var(--color-surface); box-shadow: 0 8px 40px rgb(0 0 0 / 50%); user-select: none; }.card--ghost { transform: scale(.96) translateY(8px); opacity: .35; pointer-events: none; }.card--end { align-items: center; justify-content: center; text-align: center; }.card-category { font: 600 11px 'DM Sans', sans-serif; letter-spacing: .14em; text-transform: uppercase; }.card-prompt { flex: 1; color: var(--color-cream); font: 26px/1.35 'Cormorant Garamond', serif; }.card-note { padding-top: 12px; border-top: 1px solid var(--color-surface-raised); color: var(--color-cream-muted); font: italic 12px/1.5 'DM Sans', sans-serif; }.card-footer { display: flex; justify-content: space-between; color: var(--color-cream-muted); font: 11px 'DM Sans', sans-serif; }.debate-btn, .award-trigger { border: 1px solid var(--color-surface-raised); border-radius: 100px; background: none; color: var(--color-cream-muted); font: 12px 'DM Sans', sans-serif; cursor: pointer; padding: 8px 16px; }
+.end-title { color: var(--color-cream); font: 26px/1.3 'Cormorant Garamond', serif; }.end-subtitle { color: var(--color-cream-muted); font: italic 18px 'Cormorant Garamond', serif; }.end-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; }.end-btn, .sheet-close { height: 48px; border: 1px solid var(--color-surface-raised); border-radius: 12px; background: var(--color-surface-raised); color: var(--color-cream-muted); font: 13px 'DM Sans', sans-serif; cursor: pointer; }.end-btn--accent { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-cream); }.end-label { margin-top: 6px; color: var(--color-cream-muted); font: 10px 'DM Sans', sans-serif; letter-spacing: .12em; text-transform: uppercase; }.end-categories { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+@keyframes wiggle { 0%, 100% { transform: rotate(0) translateX(0); } 15% { transform: rotate(.4deg) translateX(2px); } 30% { transform: rotate(-.3deg) translateX(-1px); } 45% { transform: rotate(.2deg) translateX(1px); } }.card--wiggle { animation: wiggle 4s ease-in-out infinite 1.5s; }.card-counter, .swipe-hint { margin-top: 8px; color: var(--color-cream); font: 11px 'DM Sans', sans-serif; letter-spacing: .12em; opacity: .5; }.award-trigger { margin-top: 16px; }.score-row { width: 100%; padding: 16px 20px 0; color: var(--color-cream-muted); font: 11px 'DM Sans', sans-serif; text-align: center; text-transform: uppercase; }.score-options { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 12px; }.score-player { height: 44px; padding: 0 20px; border: 1px solid var(--color-surface-raised); border-radius: 100px; background: var(--color-surface); color: var(--color-cream); cursor: pointer; }.muted { color: var(--color-cream-muted); }
+.overlay { position: absolute; inset: 0; z-index: 100; display: flex; align-items: flex-end; background: rgb(0 0 0 / 65%); backdrop-filter: blur(4px); }.bottom-sheet { display: flex; flex-direction: column; gap: 14px; width: 100%; max-height: 85%; overflow-y: auto; padding: 16px 24px 40px; border-radius: 24px 24px 0 0; background: var(--color-surface); color: var(--color-cream); }.sheet-handle { width: 40px; height: 4px; margin: 0 auto; border-radius: 2px; background: var(--color-surface-raised); }.sommelier { color: var(--color-gold); font-size: 54px; line-height: .8; text-align: center; }.bottom-sheet h2 { font: 28px 'Cormorant Garamond', serif; }.leaderboard-row { display: flex; gap: 16px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--color-surface-raised); }.leaderboard-row strong { flex: 1; font: 20px 'Cormorant Garamond', serif; }.leaderboard-row b, .gold { color: var(--color-gold); }.debate-prompt { color: var(--color-cream-muted); font: italic 18px/1.4 'Cormorant Garamond', serif; }.debate-sources { display: flex; flex-direction: column; gap: 8px; }.debate-sources a { padding: 10px 14px; border-radius: 8px; background: var(--color-surface-raised); color: var(--color-accent); font: 12px 'DM Sans', sans-serif; text-decoration: none; }
 </style>

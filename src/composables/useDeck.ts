@@ -7,7 +7,7 @@ const CARD_ZERO: Card = { id: 'card-zero', categoryId: null, prompt: 'Pull it ou
 const END_OF_CATEGORY: Card = { id: 'end-category', categoryId: null, prompt: '', hasTimer: false, note: null }
 const END_OF_DECK: Card = { id: 'end-deck', categoryId: null, prompt: '', hasTimer: false, note: null }
 const activeCategoryId = ref<CategoryId | 'all'>('all')
-const deck = ref<Card[]>([CARD_ZERO, ...buildDeck(CARDS, 'all')])
+const deck = ref<Card[]>([CARD_ZERO, ...buildDeck(CARDS, 'all'), END_OF_DECK])
 const currentIndex = ref(0)
 const currentCard = computed(() => deck.value[currentIndex.value])
 const isFirst = computed(() => currentIndex.value === 0)
