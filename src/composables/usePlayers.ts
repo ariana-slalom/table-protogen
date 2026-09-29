@@ -6,7 +6,9 @@ const SESSION_KEY = 'table-session-players'
 
 function loadRoster(): Player[] {
   try {
-    return JSON.parse(localStorage.getItem(ROSTER_KEY) || '[]')
+    const raw = localStorage.getItem(ROSTER_KEY)
+    if (!raw) return []
+    return JSON.parse(raw)
   } catch {
     return []
   }
@@ -14,7 +16,9 @@ function loadRoster(): Player[] {
 
 function loadSessionPlayers(): Player[] {
   try {
-    return JSON.parse(sessionStorage.getItem(SESSION_KEY) || '[]')
+    const raw = sessionStorage.getItem(SESSION_KEY)
+    if (!raw) return []
+    return JSON.parse(raw)
   } catch {
     return []
   }

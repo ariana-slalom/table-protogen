@@ -39,6 +39,10 @@ function startGame() {
       <p class="setup__sub">who's playing tonight?</p>
     </div>
 
+    <p class="setup__context">
+      Use the same name each visit - your points accumulate on the leaderboard across games.
+    </p>
+
     <div v-if="sessionPlayers.length" class="player-chips">
       <div v-for="player in sessionPlayers" :key="player.id" class="player-chip">
         <span class="chip-name">{{ player.name }}</span>
@@ -140,6 +144,16 @@ function startGame() {
   font-size: 14px;
   color: var(--color-cream-muted);
   font-style: italic;
+}
+
+.setup__context {
+  max-width: 280px;
+  color: var(--color-cream-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  opacity: 0.7;
+  text-align: center;
 }
 
 .player-chips {

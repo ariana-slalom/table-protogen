@@ -3,10 +3,9 @@ import { computed, ref } from 'vue'
 import { usePlayers } from '@/composables/usePlayers'
 
 const emit = defineEmits<{ play: []; rules: [] }>()
-const { sessionPlayers } = usePlayers()
-const partyMessageKey = 'table-party-message'
-const partyMessage = ref(localStorage.getItem(partyMessageKey) || '')
+const { sessionPlayers, addToSession } = usePlayers()
 const showPartyInput = ref(false)
+const showMenu = ref(false)
 const partyInput = ref('')
 const comingDecks = [
   { id: 2, name: 'The Brewmaster', icon: '◈' },
@@ -15,22 +14,25 @@ const comingDecks = [
   { id: 5, name: 'Fire & Smoke', icon: '△' }
 ]
 
-function savePartyMessage() {
-  localStorage.setItem(partyMessageKey, partyInput.value)
-  partyMessage.value = partyInput.value
+function saveGuestList() {
+  const names = partyInput.value
+    .split(',')
+    .map(name => name.trim())
+    .filter(name => name.length > 0)
+
+  names.forEach(name => addToSession(name))
   showPartyInput.value = false
   partyInput.value = ''
 }
 
-function clearPartyMessage() {
-  localStorage.removeItem(partyMessageKey)
-  partyMessage.value = ''
-}
-
 function handlePlay() {
   sessionStorage.setItem('table-welcome-seen', 'true')
-  if (partyMessage.value) localStorage.removeItem(partyMessageKey)
   emit('play')
+}
+
+function restartGame() {
+  sessionStorage.clear()
+  window.location.reload()
 }
 
 const playerNames = computed(() => {
@@ -47,6 +49,14 @@ const tonight = new Date().toLocaleDateString('en-US', {
 
 <template>
   <div class="welcome">
+    <div class="welcome-topbar">
+      <button class="menu-btn" type="button" aria-label="menu" @click="showMenu = true">
+        <svg width="22" height="14" viewBox="0 0 22 14" fill="none" aria-hidden="true">
+          <line x1="0" y1="2" x2="22" y2="2" stroke="var(--color-cream-muted)" stroke-width="1.5" stroke-linecap="round" />
+          <line x1="5" y1="12" x2="22" y2="12" stroke="var(--color-cream-muted)" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
     <div class="welcome__header">
       <p class="welcome__date">{{ tonight }}</p>
       <h1 class="wordmark">Table</h1>
@@ -54,18 +64,12 @@ const tonight = new Date().toLocaleDateString('en-US', {
       <p v-if="playerNames" class="welcome__players">{{ playerNames }}</p>
     </div>
 
-    <div v-if="partyMessage && !showPartyInput" class="party-msg">
-      <p class="party-msg__label">a note from your host</p>
-      <p class="party-msg__text">{{ partyMessage }}</p>
-      <button class="party-msg__clear" type="button" @click="clearPartyMessage">clear</button>
-    </div>
-
     <div v-if="showPartyInput" class="party-input-wrap">
-      <p class="party-input__label">leave a note for your guests</p>
-      <textarea v-model="partyInput" class="party-input__field" placeholder="Welcome to our table..." rows="3" maxlength="200"></textarea>
+      <p class="party-input__label">pre-set tonight's guests</p>
+      <textarea v-model="partyInput" class="party-input__field" placeholder="Add player names so the table is ready when guests arrive..." rows="3" maxlength="200"></textarea>
       <div class="party-input__actions">
         <button class="party-input__cancel" type="button" @click="showPartyInput = false">cancel</button>
-        <button class="party-input__save" type="button" @click="savePartyMessage">save note</button>
+        <button class="party-input__save" type="button" @click="saveGuestList">save guests</button>
       </div>
     </div>
 
@@ -80,9 +84,9 @@ const tonight = new Date().toLocaleDateString('en-US', {
         <svg class="action-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3 L8 2 L14 3 L14 13 L8 14 L2 13 Z" stroke="var(--color-cream-muted)" stroke-width="1" fill="none" /><line x1="8" y1="2" x2="8" y2="14" stroke="var(--color-cream-muted)" stroke-width="1" /></svg>
         house rules
       </button>
-      <button v-if="!showPartyInput && !partyMessage" class="action-btn action-btn--tertiary" type="button" @click="showPartyInput = true">
+      <button v-if="!showPartyInput" class="action-btn action-btn--tertiary" type="button" @click="showPartyInput = true">
         <svg class="action-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4 L8 9 L14 4" stroke="var(--color-cream-muted)" stroke-width="1" fill="none" /><rect x="2" y="4" width="12" height="9" rx="1" stroke="var(--color-cream-muted)" stroke-width="1" fill="none" /></svg>
-        plan a party
+        pre-set the guest list
       </button>
     </div>
 
@@ -92,15 +96,27 @@ const tonight = new Date().toLocaleDateString('en-US', {
         <div v-for="deck in comingDecks" :key="deck.id" class="deck-pill"><span class="deck-pill__icon">{{ deck.icon }}</span><span class="deck-pill__name">{{ deck.name }}</span><span class="deck-pill__soon">soon</span></div>
       </div>
     </div>
+
+    <div v-if="showMenu" class="overlay" @click="showMenu = false">
+      <div class="bottom-sheet" @click.stop>
+        <div class="sheet-handle"></div>
+        <button class="menu-item" type="button" @click="emit('rules'); showMenu = false">◇ house rules</button>
+        <button class="menu-item" type="button" @click="showMenu = false">○ leaderboard</button>
+        <button class="menu-item menu-item--danger" type="button" @click="restartGame">△ restart game</button>
+        <button class="sheet-close" type="button" @click="showMenu = false">close</button>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.welcome { min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 48px 24px 40px; background: var(--color-bg); gap: 28px; overflow-y: auto; }
+.welcome { position: relative; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 0 24px 40px; background: var(--color-bg); gap: 28px; overflow: hidden; }
 @media (min-width: 769px) { .welcome { min-height: calc(852px - 70px); } }
+.welcome-topbar { width: 100%; display: flex; justify-content: flex-start; padding: 0 8px; }.menu-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; }
 .welcome__header { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }.welcome__date, .party-msg__label, .party-input__label, .decks-coming__label { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--color-cream-muted); letter-spacing: 0.12em; text-transform: uppercase; }.welcome__date, .decks-coming__label { font-size: 10px; }.wordmark { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 400; color: var(--color-cream); letter-spacing: 0.06em; line-height: 1; }.welcome__greeting { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; color: var(--color-cream-muted); }.welcome__players { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--color-gold); letter-spacing: 0.04em; }
-.party-msg, .party-input-wrap { width: 100%; max-width: 360px; background: var(--color-surface); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 8px; }.party-msg { border-left: 2px solid var(--color-gold); }.party-msg__label { color: var(--color-gold); }.party-msg__text { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--color-cream); font-style: italic; line-height: 1.4; }.party-msg__clear, .party-input__cancel { align-self: flex-end; background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--color-cream-muted); cursor: pointer; letter-spacing: 0.06em; }.party-input-wrap { gap: 12px; }.party-input__label { font-size: 11px; letter-spacing: 0.1em; }.party-input__field { background: var(--color-bg); border: 1px solid var(--color-surface-raised); border-radius: 8px; padding: 12px 14px; color: var(--color-cream); font-family: 'Cormorant Garamond', serif; font-size: 17px; resize: none; outline: none; caret-color: var(--color-accent); line-height: 1.5; }.party-input__field:focus { border-color: var(--color-accent); }.party-input__actions { display: flex; gap: 8px; justify-content: flex-end; }.party-input__cancel { align-self: auto; padding: 8px 12px; font-size: 12px; }.party-input__save { background: var(--color-accent); border: none; border-radius: 8px; padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; color: var(--color-cream); cursor: pointer; letter-spacing: 0.06em; }
+.party-input-wrap { width: 100%; max-width: 360px; background: var(--color-surface); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }.party-input__label { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--color-cream-muted); letter-spacing: 0.1em; text-transform: uppercase; }.party-input__field { background: var(--color-bg); border: 1px solid var(--color-surface-raised); border-radius: 8px; padding: 12px 14px; color: var(--color-cream); font-family: 'Cormorant Garamond', serif; font-size: 17px; resize: none; outline: none; caret-color: var(--color-accent); line-height: 1.5; }.party-input__field:focus { border-color: var(--color-accent); }.party-input__actions { display: flex; gap: 8px; justify-content: flex-end; }.party-input__cancel { align-self: auto; padding: 8px 12px; background: none; border: none; color: var(--color-cream-muted); font: 12px 'DM Sans', sans-serif; cursor: pointer; }.party-input__save { background: var(--color-accent); border: none; border-radius: 8px; padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; color: var(--color-cream); cursor: pointer; letter-spacing: 0.06em; }
 .deck-badge { display: flex; align-items: center; gap: 10px; border: 1px solid var(--color-surface-raised); border-radius: 100px; padding: 8px 16px; }.deck-badge__num { font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--color-gold); }.deck-badge__label { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--color-cream-muted); letter-spacing: 0.08em; text-transform: uppercase; }
 .welcome__actions { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 360px; }.action-btn { width: 100%; height: 52px; border-radius: 14px; border: 1px solid var(--color-surface-raised); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; letter-spacing: 0.08em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: opacity 0.15s ease; }.action-btn--primary { background: var(--color-cream); color: var(--color-ink); border-color: var(--color-cream); }.action-btn--secondary { background: var(--color-surface); color: var(--color-cream-muted); }.action-btn--tertiary { background: transparent; color: var(--color-cream-muted); }.action-icon { flex-shrink: 0; }
 .decks-coming { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 10px; }.decks-coming__label { opacity: 0.6; }.decks-coming__list { display: flex; flex-direction: column; gap: 6px; }.deck-pill { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--color-surface); border-radius: 10px; opacity: 0.5; }.deck-pill__icon { color: var(--color-gold); font-size: 14px; }.deck-pill__name { font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--color-cream); flex: 1; }.deck-pill__soon { font-family: 'DM Sans', sans-serif; font-size: 10px; color: var(--color-cream-muted); letter-spacing: 0.1em; text-transform: uppercase; }
+.overlay { position: absolute; inset: 0; z-index: 100; display: flex; align-items: flex-end; background: rgb(0 0 0 / 65%); backdrop-filter: blur(4px); }.bottom-sheet { width: 100%; padding: 16px 24px 40px; border-radius: 24px 24px 0 0; background: var(--color-surface); display: flex; flex-direction: column; gap: 8px; }.sheet-handle { width: 40px; height: 4px; margin: 0 auto 8px; border-radius: 2px; background: var(--color-surface-raised); }.menu-item { width: 100%; height: 52px; padding: 0 4px; border: none; border-bottom: 1px solid var(--color-surface-raised); background: none; color: var(--color-cream); font-family: 'Cormorant Garamond', serif; font-size: 22px; text-align: left; letter-spacing: 0.02em; cursor: pointer; }.menu-item--danger { color: var(--color-cream-muted); }.sheet-close { height: 48px; margin-top: 8px; border: none; border-radius: 12px; background: var(--color-surface-raised); color: var(--color-cream-muted); font: 13px 'DM Sans', sans-serif; cursor: pointer; }
 </style>
